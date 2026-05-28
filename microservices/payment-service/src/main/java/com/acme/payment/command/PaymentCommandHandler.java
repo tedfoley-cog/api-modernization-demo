@@ -135,7 +135,6 @@ public class PaymentCommandHandler {
     private void allocatePayment(Payment payment) {
         BigDecimal totalAmount = payment.getPaymentAmount();
 
-        // Collect outstanding late fees for this loan
         BigDecimal feesPortion = BigDecimal.ZERO;
         List<Payment> pendingFees = paymentRepository.findByLoanIdAndStatus(
                 payment.getLoanId(), PaymentStatus.PENDING);
@@ -150,6 +149,17 @@ public class PaymentCommandHandler {
             feesPortion = remaining;
         }
         remaining = remaining.subtract(feesPortion);
+
+        // Mark collected fee records as COMPLETED to prevent duplicate charging
+        BigDecimal feeBudget = feesPortion;
+        for (Payment fee : pendingFees) {
+            if (feeBudget.compareTo(BigDecimal.ZERO) <= 0) break;
+            if (fee.getLateFee() != null && fee.getLateFee().compareTo(BigDecimal.ZERO) > 0) {
+                feeBudget = feeBudget.subtract(fee.getLateFee());
+                fee.setStatus(PaymentStatus.COMPLETED);
+                paymentRepository.save(fee);
+            }
+        }
 
         BigDecimal interestPortion = remaining.multiply(new BigDecimal("0.05"))
                 .setScale(2, RoundingMode.HALF_UP);
@@ -172,6 +182,10 @@ public class PaymentCommandHandler {
         if (payment.getAchRoutingNumber() == null || payment.getAchRoutingNumber().length() != 9) {
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
+            eventPublisher.publish(new PaymentProcessed(
+                    payment.getId(), payment.getLoanId(), new Date(),
+                    payment.getStatus().name(), payment.getPrincipalAmount(),
+                    paymentRepository.sumCompletedPayments(payment.getLoanId())));
             return;
         }
 
