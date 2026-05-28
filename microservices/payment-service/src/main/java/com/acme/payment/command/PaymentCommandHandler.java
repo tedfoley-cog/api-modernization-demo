@@ -161,6 +161,9 @@ public class PaymentCommandHandler {
             }
         }
 
+        feesPortion = feesPortion.subtract(feeBudget);
+        remaining = remaining.add(feeBudget);
+
         BigDecimal interestPortion = remaining.multiply(new BigDecimal("0.05"))
                 .setScale(2, RoundingMode.HALF_UP);
         if (interestPortion.compareTo(remaining) > 0) {
