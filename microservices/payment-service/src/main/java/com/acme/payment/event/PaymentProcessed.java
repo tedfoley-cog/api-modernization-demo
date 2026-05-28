@@ -15,17 +15,17 @@ public class PaymentProcessed extends DomainEvent {
     private final Date processedDate;
     private final String status;
     private final BigDecimal principalApplied;
-    private final BigDecimal newBalance;
+    private final BigDecimal totalPaid;
 
     public PaymentProcessed(Long paymentId, Long loanId, Date processedDate,
-                            String status, BigDecimal principalApplied, BigDecimal newBalance) {
+                            String status, BigDecimal principalApplied, BigDecimal totalPaid) {
         super("PaymentProcessed");
         this.paymentId = paymentId;
         this.loanId = loanId;
         this.processedDate = processedDate;
         this.status = status;
         this.principalApplied = principalApplied;
-        this.newBalance = newBalance;
+        this.totalPaid = totalPaid;
     }
 
     public Long getPaymentId() { return paymentId; }
@@ -33,5 +33,5 @@ public class PaymentProcessed extends DomainEvent {
     public Date getProcessedDate() { return processedDate; }
     public String getStatus() { return status; }
     public BigDecimal getPrincipalApplied() { return principalApplied; }
-    public BigDecimal getNewBalance() { return newBalance; }
+    public BigDecimal getTotalPaid() { return totalPaid; }
 }

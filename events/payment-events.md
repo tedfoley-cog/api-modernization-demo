@@ -44,7 +44,7 @@ These replace the synchronous cross-domain calls in the monolith.
 | processedDate | Date | When processing completed |
 | status | String | COMPLETED or FAILED |
 | principalApplied | BigDecimal | Principal applied to balance |
-| newBalance | BigDecimal | Updated account balance |
+| totalPaid | BigDecimal | Cumulative total of completed payments for this loan |
 
 ## LateFeesAssessed
 

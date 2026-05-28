@@ -53,6 +53,14 @@ public class PaymentController {
 
     @PostMapping("/batch")
     public ResponseEntity<Map<String, Object>> processBatch(@RequestBody List<SubmitPaymentCommand> commands) {
+        for (SubmitPaymentCommand command : commands) {
+            if (command.getLoanId() == null) {
+                throw new RuntimeException("Loan ID is required for all batch payments");
+            }
+            if (command.getPaymentAmount() == null || command.getPaymentAmount().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new RuntimeException("Payment amount must be positive for all batch payments");
+            }
+        }
         Map<String, Object> result = commandHandler.handle(new ProcessBatchCommand(commands));
         return ResponseEntity.ok(result);
     }

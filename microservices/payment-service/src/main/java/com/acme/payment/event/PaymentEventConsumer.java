@@ -30,8 +30,8 @@ public class PaymentEventConsumer {
 
     @EventListener
     public void onPaymentProcessed(PaymentProcessed event) {
-        log.info("Event consumed: PaymentProcessed — paymentId={}, loanId={}, status={}, newBalance={}",
-                event.getPaymentId(), event.getLoanId(), event.getStatus(), event.getNewBalance());
+        log.info("Event consumed: PaymentProcessed — paymentId={}, loanId={}, status={}, totalPaid={}",
+                event.getPaymentId(), event.getLoanId(), event.getStatus(), event.getTotalPaid());
     }
 
     @EventListener
