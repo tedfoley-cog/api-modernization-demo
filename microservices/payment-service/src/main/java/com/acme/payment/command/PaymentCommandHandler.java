@@ -62,6 +62,17 @@ public class PaymentCommandHandler {
                 saved.getId(), saved.getLoanId(), saved.getPaymentAmount(),
                 saved.getPaymentMethod().name(), saved.getConfirmationNumber()));
 
+        // Validate ACH before allocation to prevent marking fees COMPLETED on a doomed payment
+        if (saved.getPaymentMethod() == PaymentMethod.ACH && !isValidAch(saved)) {
+            saved.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(saved);
+            eventPublisher.publish(new PaymentProcessed(
+                    saved.getId(), saved.getLoanId(), new Date(),
+                    saved.getStatus().name(), BigDecimal.ZERO,
+                    paymentRepository.sumCompletedPayments(saved.getLoanId())));
+            return saved;
+        }
+
         // Allocate payment
         allocatePayment(saved);
         paymentRepository.save(saved);
@@ -178,19 +189,13 @@ public class PaymentCommandHandler {
         payment.setPrincipalAmount(principalPortion);
     }
 
+    private boolean isValidAch(Payment payment) {
+        return payment.getAchRoutingNumber() != null && payment.getAchRoutingNumber().length() == 9;
+    }
+
     private void processAchPayment(Payment payment) {
         payment.setStatus(PaymentStatus.PROCESSING);
         paymentRepository.save(payment);
-
-        if (payment.getAchRoutingNumber() == null || payment.getAchRoutingNumber().length() != 9) {
-            payment.setStatus(PaymentStatus.FAILED);
-            paymentRepository.save(payment);
-            eventPublisher.publish(new PaymentProcessed(
-                    payment.getId(), payment.getLoanId(), new Date(),
-                    payment.getStatus().name(), payment.getPrincipalAmount(),
-                    paymentRepository.sumCompletedPayments(payment.getLoanId())));
-            return;
-        }
 
         payment.setStatus(PaymentStatus.COMPLETED);
         payment.setProcessedDate(new Date());
