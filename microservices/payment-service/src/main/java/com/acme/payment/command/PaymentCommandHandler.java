@@ -62,8 +62,8 @@ public class PaymentCommandHandler {
                 saved.getId(), saved.getLoanId(), saved.getPaymentAmount(),
                 saved.getPaymentMethod().name(), saved.getConfirmationNumber()));
 
-        // Validate ACH before allocation to prevent marking fees COMPLETED on a doomed payment
-        if (saved.getPaymentMethod() == PaymentMethod.ACH && !isValidAch(saved)) {
+        // Validate electronic payments before allocation to prevent marking fees COMPLETED on a doomed payment
+        if (isElectronicPayment(saved) && !isValidAch(saved)) {
             saved.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(saved);
             eventPublisher.publish(new PaymentProcessed(
@@ -73,8 +73,9 @@ public class PaymentCommandHandler {
             return saved;
         }
 
-        // Allocate payment
-        allocatePayment(saved);
+        // Allocate payment — only settle fees for electronic payments that will be auto-confirmed
+        boolean settleFees = isElectronicPayment(saved);
+        allocatePayment(saved, settleFees);
         paymentRepository.save(saved);
 
         // Publish PaymentAllocated event
@@ -82,9 +83,9 @@ public class PaymentCommandHandler {
                 saved.getId(), saved.getLoanId(),
                 saved.getPrincipalAmount(), saved.getInterestAmount(), saved.getFeeAmount()));
 
-        // Process ACH payments immediately
-        if (saved.getPaymentMethod() == PaymentMethod.ACH) {
-            processAchPayment(saved);
+        // Process electronic payments (ACH/EFT) immediately
+        if (isElectronicPayment(saved)) {
+            processElectronicPayment(saved);
         }
 
         return saved;
@@ -143,7 +144,7 @@ public class PaymentCommandHandler {
         return saved;
     }
 
-    private void allocatePayment(Payment payment) {
+    private void allocatePayment(Payment payment, boolean settleFees) {
         BigDecimal totalAmount = payment.getPaymentAmount();
 
         BigDecimal feesPortion = BigDecimal.ZERO;
@@ -167,8 +168,10 @@ public class PaymentCommandHandler {
             if (fee.getLateFee() != null && fee.getLateFee().compareTo(BigDecimal.ZERO) > 0) {
                 if (feeBudget.compareTo(fee.getLateFee()) < 0) break;
                 feeBudget = feeBudget.subtract(fee.getLateFee());
-                fee.setStatus(PaymentStatus.COMPLETED);
-                paymentRepository.save(fee);
+                if (settleFees) {
+                    fee.setStatus(PaymentStatus.COMPLETED);
+                    paymentRepository.save(fee);
+                }
             }
         }
 
@@ -189,11 +192,16 @@ public class PaymentCommandHandler {
         payment.setPrincipalAmount(principalPortion);
     }
 
+    private boolean isElectronicPayment(Payment payment) {
+        return payment.getPaymentMethod() == PaymentMethod.ACH
+                || payment.getPaymentMethod() == PaymentMethod.EFT;
+    }
+
     private boolean isValidAch(Payment payment) {
         return payment.getAchRoutingNumber() != null && payment.getAchRoutingNumber().length() == 9;
     }
 
-    private void processAchPayment(Payment payment) {
+    private void processElectronicPayment(Payment payment) {
         payment.setStatus(PaymentStatus.PROCESSING);
         paymentRepository.save(payment);
 
