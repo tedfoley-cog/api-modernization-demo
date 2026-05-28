@@ -136,7 +136,7 @@ public class PaymentCommandHandler {
         BigDecimal totalAmount = payment.getPaymentAmount();
 
         BigDecimal feesPortion = BigDecimal.ZERO;
-        List<Payment> pendingFees = paymentRepository.findByLoanIdAndStatus(
+        List<Payment> pendingFees = paymentRepository.findByLoanIdAndStatusOrderByIdAsc(
                 payment.getLoanId(), PaymentStatus.PENDING);
         for (Payment fee : pendingFees) {
             if (fee.getLateFee() != null && fee.getLateFee().compareTo(BigDecimal.ZERO) > 0) {
@@ -154,7 +154,7 @@ public class PaymentCommandHandler {
         for (Payment fee : pendingFees) {
             if (feeBudget.compareTo(BigDecimal.ZERO) <= 0) break;
             if (fee.getLateFee() != null && fee.getLateFee().compareTo(BigDecimal.ZERO) > 0) {
-                if (feeBudget.compareTo(fee.getLateFee()) < 0) continue;
+                if (feeBudget.compareTo(fee.getLateFee()) < 0) break;
                 feeBudget = feeBudget.subtract(fee.getLateFee());
                 fee.setStatus(PaymentStatus.COMPLETED);
                 paymentRepository.save(fee);

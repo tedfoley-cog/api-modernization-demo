@@ -67,6 +67,15 @@ public class PaymentController {
 
     @PostMapping("/late-fee")
     public ResponseEntity<Payment> assessLateFee(@RequestBody AssessLateFeeCommand command) {
+        if (command.getLoanId() == null) {
+            throw new RuntimeException("Loan ID is required");
+        }
+        if (command.getDaysPastDue() <= 0) {
+            throw new RuntimeException("Days past due must be positive");
+        }
+        if (command.getCurrentBalance() == null) {
+            throw new RuntimeException("Current balance is required");
+        }
         Payment result = commandHandler.handle(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

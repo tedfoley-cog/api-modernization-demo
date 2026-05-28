@@ -16,6 +16,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByLoanIdAndStatus(Long loanId, PaymentStatus status);
 
+    List<Payment> findByLoanIdAndStatusOrderByIdAsc(Long loanId, PaymentStatus status);
+
     @Query(value = "SELECT COALESCE(SUM(payment_amount), 0) FROM payments " +
            "WHERE loan_id = ?1 AND status = 'COMPLETED'", nativeQuery = true)
     BigDecimal sumCompletedPayments(Long loanId);
