@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Modernization Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f5f7fa; color: #1e293b;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+      color: #fff; text-align: center;
+      padding: 2rem 1rem; box-shadow: 0 4px 20px rgba(0,0,0,.15);
+    }
+    header h1 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; }
+    header p { margin-top: .5rem; font-size: .95rem; color: #94a3b8; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem 1rem; }
+    .metrics-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: #fff; border-radius: 12px; padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08); text-align: center;
+    }
+    .metric-card .value { font-size: 2rem; font-weight: 700; color: #3b82f6; }
+    .metric-card .label { font-size: .85rem; color: #64748b; margin-top: .25rem; }
+    .section { margin-bottom: 2rem; }
+    .section h2 { font-size: 1.25rem; margin-bottom: 1rem; color: #1e293b; }
+    table {
+      width: 100%; border-collapse: collapse; background: #fff;
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    th { background: #f1f5f9; color: #475569; font-weight: 600; font-size: .8rem;
+         text-transform: uppercase; letter-spacing: .05em; text-align: left; padding: .75rem 1rem; }
+    td { padding: .75rem 1rem; border-top: 1px solid #e2e8f0; font-size: .9rem; }
+    tr:hover td { background: #f8fafc; }
+    .badge {
+      display: inline-block; padding: .2rem .6rem; border-radius: 999px;
+      font-size: .75rem; font-weight: 600;
+    }
+    .badge-high { background: #fee2e2; color: #991b1b; }
+    .badge-medium { background: #fef3c7; color: #92400e; }
+    .badge-low { background: #d1fae5; color: #065f46; }
+    .badge-method { background: #dbeafe; color: #1e40af; }
+    .chart-container { background: #fff; border-radius: 12px; padding: 1.5rem;
+                       box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .placeholder {
+      text-align: center; padding: 3rem; background: #fff;
+      border-radius: 12px; border: 2px dashed #cbd5e1; color: #94a3b8;
+    }
+    .placeholder h3 { font-size: 1.1rem; margin-bottom: .5rem; }
+    .event-card {
+      background: #fff; border-radius: 12px; padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 1rem;
+      border-left: 4px solid #6366f1;
+    }
+    .event-card h4 { color: #312e81; font-size: 1rem; }
+    .event-card .trigger { color: #64748b; font-size: .85rem; margin: .25rem 0; }
+    .event-card .current { color: #dc2626; font-size: .8rem; font-style: italic; }
+    .event-card .flow {
+      display: flex; align-items: center; gap: .5rem; margin-top: .5rem;
+      font-size: .8rem; color: #475569;
+    }
+    .event-card .flow .arrow { color: #6366f1; font-weight: 700; }
+    .domain-card {
+      background: #fff; border-radius: 12px; padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 1rem;
+    }
+    .domain-card h4 { color: #1e3a8a; }
+    .domain-card .desc { color: #64748b; font-size: .85rem; margin: .25rem 0 .5rem; }
+    .tag { display: inline-block; padding: .15rem .5rem; border-radius: 4px;
+           font-size: .75rem; margin: .15rem; background: #f1f5f9; color: #475569; }
+    .progress-section {
+      background: #fff; border-radius: 12px; padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 2px dashed #a5b4fc;
+    }
+    .progress-bar { height: 24px; background: #e2e8f0; border-radius: 12px;
+                    overflow: hidden; margin: 1rem 0; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #3b82f6);
+                     border-radius: 12px; transition: width .5s; }
+    footer { text-align: center; padding: 1.5rem; font-size: .8rem; color: #94a3b8;
+             border-top: 1px solid #e2e8f0; background: #fff; }
+    @media (max-width: 768px) { .chart-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>API Modernization Dashboard</h1>
+    <p>Legacy Monolith Analysis &amp; Event-Driven Decomposition</p>
+  </header>
+
+  <div class="container">
+    <!-- Metrics Summary -->
+    <div id="metrics-section" class="metrics-grid">
+      <div class="metric-card"><div class="value" id="m-files">--</div><div class="label">Java Files</div></div>
+      <div class="metric-card"><div class="value" id="m-loc">--</div><div class="label">Lines of Code</div></div>
+      <div class="metric-card"><div class="value" id="m-endpoints">--</div><div class="label">API Endpoints</div></div>
+      <div class="metric-card"><div class="value" id="m-services">--</div><div class="label">Services</div></div>
+      <div class="metric-card"><div class="value" id="m-coupling">--</div><div class="label">Cross-Domain Deps</div></div>
+      <div class="metric-card"><div class="value" id="m-events">--</div><div class="label">Proposed Events</div></div>
+    </div>
+
+    <!-- Endpoint Inventory -->
+    <div class="section" id="endpoints-section">
+      <h2>API Endpoint Inventory</h2>
+      <div id="endpoints-placeholder" class="placeholder">
+        <h3>Waiting for Analysis</h3>
+        <p>Run <code>python -m analysis.analyze_monolith src dashboard/data</code> to populate</p>
+      </div>
+      <table id="endpoints-table" style="display:none;">
+        <thead><tr><th>Method</th><th>Path</th><th>Controller</th><th>Domain</th></tr></thead>
+        <tbody id="endpoints-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Coupling Scores -->
+    <div class="section" id="coupling-section">
+      <h2>Service Coupling Scores</h2>
+      <div id="coupling-placeholder" class="placeholder">
+        <h3>Waiting for Analysis</h3>
+        <p>Coupling scores will appear after analysis runs</p>
+      </div>
+      <div id="coupling-content" style="display:none;">
+        <div class="chart-grid">
+          <div class="chart-container"><canvas id="coupling-chart"></canvas></div>
+          <div class="chart-container"><canvas id="loc-chart"></canvas></div>
+        </div>
+        <table id="coupling-table" style="margin-top:1rem;">
+          <thead><tr><th>Service</th><th>Domain</th><th>LOC</th><th>Methods</th><th>Cross-Domain</th><th>Risk Score</th></tr></thead>
+          <tbody id="coupling-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Domain Boundaries -->
+    <div class="section" id="boundaries-section">
+      <h2>Proposed Domain Boundaries (Bounded Contexts)</h2>
+      <div id="boundaries-placeholder" class="placeholder">
+        <h3>Waiting for Analysis</h3>
+        <p>Domain boundaries will be identified after analysis</p>
+      </div>
+      <div id="boundaries-content" style="display:none;"></div>
+    </div>
+
+    <!-- Event Catalog -->
+    <div class="section" id="events-section">
+      <h2>Event Catalog</h2>
+      <div id="events-placeholder" class="placeholder">
+        <h3>Waiting for Analysis</h3>
+        <p>Domain events will be cataloged after analysis</p>
+      </div>
+      <div id="events-content" style="display:none;"></div>
+    </div>
+
+    <!-- Modernization Progress -->
+    <div class="section">
+      <h2>Modernization Progress</h2>
+      <div class="progress-section">
+        <p>Bounded contexts converted to event-driven microservices:</p>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <p id="progress-label" style="text-align:center;color:#6366f1;font-weight:600;">0 / 5 bounded contexts converted</p>
+        <div id="progress-details" style="margin-top:1rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Auto Finance API Modernization Demo &mdash; Devin AI &copy; 2026</footer>
+
+  <script>
+    async function loadData() {
+      try {
+        const res = await fetch('data/analysis.json');
+        if (!res.ok) return;
+        const data = await res.json();
+        renderMetrics(data.metrics);
+        renderEndpoints(data.endpoints);
+        renderCoupling(data.coupling_scores);
+        renderBoundaries(data.domain_boundaries);
+        renderEvents(data.event_catalog);
+      } catch (e) {
+        console.log('No analysis data yet — dashboard in placeholder state');
+      }
+    }
+
+    function renderMetrics(m) {
+      if (!m) return;
+      document.getElementById('m-files').textContent = m.total_java_files || '--';
+      document.getElementById('m-loc').textContent = (m.total_lines_of_code || 0).toLocaleString();
+      document.getElementById('m-endpoints').textContent = m.total_endpoints || '--';
+      document.getElementById('m-services').textContent = m.total_services || '--';
+      document.getElementById('m-coupling').textContent = m.total_autowired_injections || '--';
+    }
+
+    function guessDomain(path, controller) {
+      const p = (path + controller).toLowerCase();
+      if (p.includes('loan')) return 'Loan Origination';
+      if (p.includes('payment')) return 'Payment Processing';
+      if (p.includes('account')) return 'Account Servicing';
+      if (p.includes('dealer')) return 'Dealer Integration';
+      if (p.includes('report')) return 'Reporting';
+      return 'Shared';
+    }
+
+    function renderEndpoints(endpoints) {
+      if (!endpoints || !endpoints.length) return;
+      document.getElementById('endpoints-placeholder').style.display = 'none';
+      document.getElementById('endpoints-table').style.display = '';
+      const body = document.getElementById('endpoints-body');
+      body.innerHTML = endpoints.map(ep =>
+        `<tr><td><span class="badge badge-method">${ep.method}</span></td>` +
+        `<td><code>${ep.path}</code></td>` +
+        `<td>${ep.controller}</td>` +
+        `<td>${guessDomain(ep.path, ep.controller)}</td></tr>`
+      ).join('');
+    }
+
+    function renderCoupling(scores) {
+      if (!scores || !scores.length) return;
+      document.getElementById('coupling-placeholder').style.display = 'none';
+      document.getElementById('coupling-content').style.display = '';
+
+      const body = document.getElementById('coupling-body');
+      body.innerHTML = scores.map(s => {
+        const badgeClass = s.risk_score > 15 ? 'badge-high' : s.risk_score > 8 ? 'badge-medium' : 'badge-low';
+        return `<tr><td><strong>${s.service}</strong></td>` +
+          `<td>${s.domain}</td>` +
+          `<td>${s.line_count}</td>` +
+          `<td>${s.method_count}</td>` +
+          `<td>${s.cross_domain_calls}</td>` +
+          `<td><span class="badge ${badgeClass}">${s.risk_score}</span></td></tr>`;
+      }).join('');
+
+      // Coupling bar chart
+      new Chart(document.getElementById('coupling-chart'), {
+        type: 'bar',
+        data: {
+          labels: scores.map(s => s.service.replace('Service', '')),
+          datasets: [{
+            label: 'Risk Score',
+            data: scores.map(s => s.risk_score),
+            backgroundColor: scores.map(s =>
+              s.risk_score > 15 ? '#ef4444' : s.risk_score > 8 ? '#f59e0b' : '#10b981'
+            ),
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { title: { display: true, text: 'Service Risk Scores' } },
+          scales: { y: { beginAtZero: true } },
+        }
+      });
+
+      // LOC chart
+      new Chart(document.getElementById('loc-chart'), {
+        type: 'doughnut',
+        data: {
+          labels: scores.map(s => s.service.replace('Service', '')),
+          datasets: [{
+            data: scores.map(s => s.line_count),
+            backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#6366f1', '#10b981'],
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { title: { display: true, text: 'Lines of Code Distribution' } },
+        }
+      });
+
+      // Update events metric
+      document.getElementById('m-coupling').textContent =
+        scores.reduce((sum, s) => sum + s.cross_domain_calls, 0);
+    }
+
+    function renderBoundaries(boundaries) {
+      if (!boundaries || !boundaries.length) return;
+      document.getElementById('boundaries-placeholder').style.display = 'none';
+      const container = document.getElementById('boundaries-content');
+      container.style.display = '';
+      container.innerHTML = boundaries.map(b => {
+        const badgeClass = b.extraction_complexity === 'HIGH' ? 'badge-high' :
+                           b.extraction_complexity === 'MEDIUM' ? 'badge-medium' : 'badge-low';
+        return `<div class="domain-card">` +
+          `<h4>${b.domain} <span class="badge ${badgeClass}">${b.extraction_complexity} complexity</span></h4>` +
+          `<p class="desc">${b.description}</p>` +
+          `<div>Proposed service: <code>${b.proposed_service}</code></div>` +
+          `<div style="margin-top:.5rem;">${b.endpoint_count} endpoints &middot; ` +
+          `${b.entities.length} entities &middot; ${b.cross_boundary_dependencies} cross-boundary deps</div>` +
+          `<div style="margin-top:.5rem;">${b.endpoints.map(e =>
+            `<span class="tag">${e.method} ${e.path}</span>`).join('')}</div>` +
+          `</div>`;
+      }).join('');
+    }
+
+    function renderEvents(events) {
+      if (!events || !events.length) return;
+      document.getElementById('events-placeholder').style.display = 'none';
+      const container = document.getElementById('events-content');
+      container.style.display = '';
+      document.getElementById('m-events').textContent = events.length;
+      container.innerHTML = events.map(ev =>
+        `<div class="event-card">` +
+        `<h4>${ev.event_name}</h4>` +
+        `<p class="trigger">${ev.trigger}</p>` +
+        `<p class="current">Current: ${ev.current_implementation}</p>` +
+        `<div class="flow">` +
+        `<span>${ev.producers.join(', ')}</span>` +
+        `<span class="arrow">&rarr;</span>` +
+        `<strong>${ev.event_name}</strong>` +
+        `<span class="arrow">&rarr;</span>` +
+        `<span>${ev.consumers.join(', ')}</span>` +
+        `</div></div>`
+      ).join('');
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

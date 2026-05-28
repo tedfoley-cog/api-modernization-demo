@@ -1,0 +1,2 @@
+# No external dependencies — analysis scripts use Python stdlib only
+# ruff is used for linting (install separately: pip install ruff)
