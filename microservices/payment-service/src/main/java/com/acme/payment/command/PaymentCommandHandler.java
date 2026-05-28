@@ -150,11 +150,11 @@ public class PaymentCommandHandler {
         }
         remaining = remaining.subtract(feesPortion);
 
-        // Mark collected fee records as COMPLETED to prevent duplicate charging
         BigDecimal feeBudget = feesPortion;
         for (Payment fee : pendingFees) {
             if (feeBudget.compareTo(BigDecimal.ZERO) <= 0) break;
             if (fee.getLateFee() != null && fee.getLateFee().compareTo(BigDecimal.ZERO) > 0) {
+                if (feeBudget.compareTo(fee.getLateFee()) < 0) continue;
                 feeBudget = feeBudget.subtract(fee.getLateFee());
                 fee.setStatus(PaymentStatus.COMPLETED);
                 paymentRepository.save(fee);
