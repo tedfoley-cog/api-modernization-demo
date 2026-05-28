@@ -75,7 +75,6 @@ public class PaymentCommandHandler {
         return saved;
     }
 
-    @Transactional
     public Map<String, Object> handle(ProcessBatchCommand cmd) {
         Map<String, Object> results = new HashMap<>();
         int processed = 0;
@@ -83,7 +82,7 @@ public class PaymentCommandHandler {
 
         for (SubmitPaymentCommand paymentCmd : cmd.getPayments()) {
             try {
-                handle(paymentCmd);
+                handleSinglePayment(paymentCmd);
                 processed++;
             } catch (Exception e) {
                 failed++;
@@ -95,6 +94,11 @@ public class PaymentCommandHandler {
         results.put("failed", failed);
         results.put("batchDate", new Date());
         return results;
+    }
+
+    @Transactional
+    public Payment handleSinglePayment(SubmitPaymentCommand cmd) {
+        return handle(cmd);
     }
 
     @Transactional
@@ -147,8 +151,7 @@ public class PaymentCommandHandler {
         }
         remaining = remaining.subtract(feesPortion);
 
-        // Estimate interest at 5% annual (placeholder — in production, query loan service)
-        BigDecimal interestPortion = remaining.multiply(new BigDecimal("0.20"))
+        BigDecimal interestPortion = remaining.multiply(new BigDecimal("0.05"))
                 .setScale(2, RoundingMode.HALF_UP);
         if (interestPortion.compareTo(remaining) > 0) {
             interestPortion = remaining;
@@ -176,9 +179,9 @@ public class PaymentCommandHandler {
         payment.setProcessedDate(new Date());
         paymentRepository.save(payment);
 
-        // Publish PaymentProcessed — account and loan services react asynchronously
+        BigDecimal totalPaid = paymentRepository.sumCompletedPayments(payment.getLoanId());
         eventPublisher.publish(new PaymentProcessed(
                 payment.getId(), payment.getLoanId(), payment.getProcessedDate(),
-                payment.getStatus().name(), payment.getPrincipalAmount(), BigDecimal.ZERO));
+                payment.getStatus().name(), payment.getPrincipalAmount(), totalPaid));
     }
 }
