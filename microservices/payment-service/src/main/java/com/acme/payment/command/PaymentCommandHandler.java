@@ -9,6 +9,7 @@ import com.acme.payment.model.Payment;
 import com.acme.payment.model.PaymentMethod;
 import com.acme.payment.model.PaymentStatus;
 import com.acme.payment.repository.PaymentRepository;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,10 +34,13 @@ public class PaymentCommandHandler {
 
     private final PaymentRepository paymentRepository;
     private final EventPublisher eventPublisher;
+    private final ApplicationContext applicationContext;
 
-    public PaymentCommandHandler(PaymentRepository paymentRepository, EventPublisher eventPublisher) {
+    public PaymentCommandHandler(PaymentRepository paymentRepository, EventPublisher eventPublisher,
+                                 ApplicationContext applicationContext) {
         this.paymentRepository = paymentRepository;
         this.eventPublisher = eventPublisher;
+        this.applicationContext = applicationContext;
     }
 
     @Transactional
@@ -76,13 +80,14 @@ public class PaymentCommandHandler {
     }
 
     public Map<String, Object> handle(ProcessBatchCommand cmd) {
+        PaymentCommandHandler proxy = applicationContext.getBean(PaymentCommandHandler.class);
         Map<String, Object> results = new HashMap<>();
         int processed = 0;
         int failed = 0;
 
         for (SubmitPaymentCommand paymentCmd : cmd.getPayments()) {
             try {
-                handleSinglePayment(paymentCmd);
+                proxy.handle(paymentCmd);
                 processed++;
             } catch (Exception e) {
                 failed++;
@@ -94,11 +99,6 @@ public class PaymentCommandHandler {
         results.put("failed", failed);
         results.put("batchDate", new Date());
         return results;
-    }
-
-    @Transactional
-    public Payment handleSinglePayment(SubmitPaymentCommand cmd) {
-        return handle(cmd);
     }
 
     @Transactional
