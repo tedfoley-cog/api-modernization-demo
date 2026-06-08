@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://acme-autofinance.com/events/payment/payment.received.schema.json",
+  "title": "PaymentReceived",
+  "description": "Emitted when a borrower submits a payment. Replaces the synchronous PaymentService.submitPayment() call that allocated the payment inline.",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event instance."
+    },
+    "eventType": {
+      "type": "string",
+      "const": "PaymentReceived",
+      "description": "Discriminator naming the event contract."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the payment was submitted (ISO 8601, UTC)."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version of the event contract."
+    },
+    "data": {
+      "type": "object",
+      "description": "Payment-received payload.",
+      "properties": {
+        "paymentId": {
+          "type": "integer",
+          "description": "Identifier of the payment record."
+        },
+        "loanId": {
+          "type": "integer",
+          "description": "Identifier of the loan the payment applies to."
+        },
+        "paymentAmount": {
+          "type": "number",
+          "description": "Total payment amount in dollars."
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Payment channel, e.g. ACH, CARD, CHECK."
+        },
+        "confirmationNumber": {
+          "type": "string",
+          "description": "Confirmation number issued to the borrower."
+        }
+      },
+      "required": [
+        "paymentId",
+        "loanId",
+        "paymentAmount",
+        "paymentMethod",
+        "confirmationNumber"
+      ]
+    }
+  },
+  "required": [
+    "eventId",
+    "eventType",
+    "occurredAt",
+    "version",
+    "data"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://acme-autofinance.com/events/payment/payment.processed.schema.json",
+  "title": "PaymentProcessed",
+  "description": "Emitted when an ACH/EFT payment completes successfully. Replaces PaymentService.processAchPayment() which synchronously updated account balance and loan status.",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event instance."
+    },
+    "eventType": {
+      "type": "string",
+      "const": "PaymentProcessed",
+      "description": "Discriminator naming the event contract."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the payment finished processing (ISO 8601, UTC)."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version of the event contract."
+    },
+    "data": {
+      "type": "object",
+      "description": "Payment-processed payload.",
+      "properties": {
+        "paymentId": {
+          "type": "integer",
+          "description": "Identifier of the payment record."
+        },
+        "loanId": {
+          "type": "integer",
+          "description": "Identifier of the loan the payment applies to."
+        },
+        "processedDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the payment was processed (ISO 8601, UTC)."
+        },
+        "status": {
+          "type": "string",
+          "description": "Final processing status, e.g. COMPLETED, FAILED, RETURNED."
+        },
+        "principalApplied": {
+          "type": "number",
+          "description": "Amount of principal applied to the loan, in dollars."
+        },
+        "newBalance": {
+          "type": "number",
+          "description": "Resulting loan balance after the payment, in dollars."
+        }
+      },
+      "required": [
+        "paymentId",
+        "loanId",
+        "processedDate",
+        "status",
+        "principalApplied",
+        "newBalance"
+      ]
+    }
+  },
+  "required": [
+    "eventId",
+    "eventType",
+    "occurredAt",
+    "version",
+    "data"
+  ]
+}

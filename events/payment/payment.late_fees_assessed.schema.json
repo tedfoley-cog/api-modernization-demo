@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://acme-autofinance.com/events/payment/payment.late_fees_assessed.schema.json",
+  "title": "LateFeesAssessed",
+  "description": "Emitted when a past-due account is charged a late fee. Replaces PaymentService.assessLateFee(), previously called synchronously from LoanService.runEndOfDayProcessing().",
+  "type": "object",
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event instance."
+    },
+    "eventType": {
+      "type": "string",
+      "const": "LateFeesAssessed",
+      "description": "Discriminator naming the event contract."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the late fee was assessed (ISO 8601, UTC)."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version of the event contract."
+    },
+    "data": {
+      "type": "object",
+      "description": "Late-fee-assessment payload.",
+      "properties": {
+        "loanId": {
+          "type": "integer",
+          "description": "Identifier of the loan being assessed a late fee."
+        },
+        "feeAmount": {
+          "type": "number",
+          "description": "Late fee charged, in dollars."
+        },
+        "daysPastDue": {
+          "type": "integer",
+          "description": "Number of days the account is past due."
+        },
+        "assessmentDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the late fee was assessed (ISO 8601, UTC)."
+        }
+      },
+      "required": [
+        "loanId",
+        "feeAmount",
+        "daysPastDue",
+        "assessmentDate"
+      ]
+    }
+  },
+  "required": [
+    "eventId",
+    "eventType",
+    "occurredAt",
+    "version",
+    "data"
+  ]
+}
