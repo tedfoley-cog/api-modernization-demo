@@ -7,6 +7,8 @@ import com.acme.payment.event.LateFeesAssessed;
 import com.acme.payment.event.PaymentAllocated;
 import com.acme.payment.event.PaymentProcessed;
 import com.acme.payment.event.PaymentReceived;
+import com.acme.payment.query.PaymentQueryService;
+import com.acme.payment.query.PaymentView;
 import com.acme.payment.repository.PaymentRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ class PaymentCommandServiceIntegrationTest {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private PaymentQueryService queryService;
 
     @Autowired
     private ApplicationEvents events;
@@ -134,6 +139,38 @@ class PaymentCommandServiceIntegrationTest {
         Payment fee = commandService.assessLateFee(cmd);
 
         assertThat(fee.getLateFee()).isEqualByComparingTo("50.00");
+    }
+
+    @Test
+    void eftPaymentClearsStraightThroughLikeAch() {
+        SubmitPaymentCommand cmd = new SubmitPaymentCommand();
+        cmd.setLoanId(110L);
+        cmd.setPaymentAmount(new BigDecimal("400.00"));
+        cmd.setPaymentMethod(PaymentMethod.EFT);
+        cmd.setOutstandingBalance(new BigDecimal("8000.00"));
+        cmd.setAnnualInterestRate(new BigDecimal("0.00"));
+
+        Payment payment = commandService.submitPayment(cmd);
+
+        // EFT is electronic, so it should complete straight-through (matching ACH/EFT docs).
+        assertThat(payment.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
+        assertThat(events.stream(PaymentProcessed.class).count()).isEqualTo(1);
+    }
+
+    @Test
+    void assessedLateFeeDoesNotAppearInPendingPayments() {
+        AssessLateFeeCommand cmd = new AssessLateFeeCommand();
+        cmd.setLoanId(202L);
+        cmd.setDaysPastDue(10);
+        cmd.setCurrentBalance(new BigDecimal("5000.00"));
+
+        Payment fee = commandService.assessLateFee(cmd);
+
+        // Late fee is terminal once assessed — it must not pollute the pending queue.
+        assertThat(fee.getStatus()).isEqualTo(PaymentStatus.COMPLETED);
+        assertThat(queryService.getPendingPayments())
+                .extracting(PaymentView::getId)
+                .doesNotContain(fee.getId());
     }
 
     @Test

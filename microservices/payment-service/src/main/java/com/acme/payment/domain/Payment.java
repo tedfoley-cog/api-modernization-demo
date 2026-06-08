@@ -93,6 +93,10 @@ public class Payment {
         p.lateFee = feeAmount;
         p.confirmationNumber = "FEE-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         p.allocation = new PaymentAllocation(feeAmount, BigDecimal.ZERO, BigDecimal.ZERO);
+        // A late fee is assessed immediately — it is not awaiting processing, so it must not
+        // surface in the pending-payments queue alongside CHECK/WIRE submissions.
+        p.status = PaymentStatus.COMPLETED;
+        p.processedAt = Instant.now();
         return p;
     }
 
@@ -144,6 +148,11 @@ public class Payment {
 
     public boolean isAch() {
         return this.paymentMethod == PaymentMethod.ACH;
+    }
+
+    /** Electronic methods (ACH/EFT) clear straight through; CHECK/WIRE settle out of band. */
+    public boolean isElectronic() {
+        return this.paymentMethod == PaymentMethod.ACH || this.paymentMethod == PaymentMethod.EFT;
     }
 
     public boolean hasValidAchRouting() {

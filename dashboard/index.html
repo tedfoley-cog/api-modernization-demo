@@ -178,17 +178,19 @@
     async function loadData() {
       try {
         const res = await fetch('data/analysis.json');
-        if (!res.ok) return;
-        const data = await res.json();
-        renderMetrics(data.metrics);
-        renderEndpoints(data.endpoints);
-        renderCoupling(data.coupling_scores);
-        renderBoundaries(data.domain_boundaries);
-        renderEvents(data.event_catalog);
+        if (res.ok) {
+          const data = await res.json();
+          renderMetrics(data.metrics);
+          renderEndpoints(data.endpoints);
+          renderCoupling(data.coupling_scores);
+          renderBoundaries(data.domain_boundaries);
+          renderEvents(data.event_catalog);
+        }
       } catch (e) {
         console.log('No analysis data yet — dashboard in placeholder state');
+      } finally {
+        loadProgress();
       }
-      loadProgress();
     }
 
     async function loadProgress() {

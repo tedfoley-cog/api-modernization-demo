@@ -60,7 +60,7 @@ public class PaymentCommandService {
                 allocation.getPrincipalAmount(), allocation.getInterestAmount(), allocation.getFeeAmount()));
 
         // ACH/EFT clear straight through; other methods settle out of band.
-        if (payment.isAch()) {
+        if (payment.isElectronic()) {
             processPayment(payment);
         }
 

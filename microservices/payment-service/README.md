@@ -51,7 +51,7 @@ in at the boundary — the service never reads the loan or account databases.
 ```bash
 cd microservices/payment-service
 mvn spring-boot:run     # http://localhost:8081
-mvn test                # 10 integration tests
+mvn test                # 12 integration tests
 ```
 
 ### Example
