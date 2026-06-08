@@ -8,7 +8,9 @@ import com.acme.payment.event.PaymentAllocated;
 import com.acme.payment.event.PaymentProcessed;
 import com.acme.payment.event.PaymentReceived;
 import com.acme.payment.repository.PaymentRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -24,13 +26,28 @@ public class PaymentCommandService {
 
     private final PaymentRepository paymentRepository;
     private final EventPublisher eventPublisher;
+    /**
+     * Proxied self-reference. Used so {@link #processBatch} invokes {@link #submit}
+     * through the Spring AOP proxy rather than via {@code this}, which would bypass
+     * the transactional boundary. {@code @Lazy} breaks the self-referential cycle.
+     */
+    private final PaymentCommandService self;
 
-    public PaymentCommandService(PaymentRepository paymentRepository, EventPublisher eventPublisher) {
+    public PaymentCommandService(PaymentRepository paymentRepository,
+                                 EventPublisher eventPublisher,
+                                 @Lazy PaymentCommandService self) {
         this.paymentRepository = paymentRepository;
         this.eventPublisher = eventPublisher;
+        this.self = self;
     }
 
-    @Transactional
+    /**
+     * Each submission runs in its own transaction ({@code REQUIRES_NEW}) so that,
+     * when invoked from {@link #processBatch}, a failing payment rolls back in
+     * isolation without poisoning the shared persistence context or leaking a
+     * partially-saved entity into a sibling's commit.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Payment submit(SubmitPaymentCommand command) {
         Payment payment = Payment.submit(
                 command.getLoanId(),
@@ -85,13 +102,18 @@ public class PaymentCommandService {
         return saved;
     }
 
-    @Transactional
+    /**
+     * Orchestrates a batch with per-item transactions. Intentionally <em>not</em>
+     * {@code @Transactional}: each {@code self.submit(...)} opens its own
+     * {@code REQUIRES_NEW} transaction, so a failure is counted and discarded
+     * without affecting payments that already committed.
+     */
     public BatchResult processBatch(ProcessBatchCommand command) {
         int processed = 0;
         int failed = 0;
         for (SubmitPaymentCommand sub : command.getPayments()) {
             try {
-                submit(sub);
+                self.submit(sub);
                 processed++;
             } catch (RuntimeException e) {
                 failed++;

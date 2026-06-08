@@ -1,7 +1,9 @@
 package com.acme.payment;
 
 import com.acme.payment.command.AssessLateFeeCommand;
+import com.acme.payment.command.BatchResult;
 import com.acme.payment.command.PaymentCommandService;
+import com.acme.payment.command.ProcessBatchCommand;
 import com.acme.payment.command.SubmitPaymentCommand;
 import com.acme.payment.domain.PaymentMethod;
 import com.acme.payment.domain.PaymentStatus;
@@ -154,6 +156,26 @@ class PaymentServiceIntegrationTest {
         assertThat(assessed.get(0).getDaysPastDue()).isEqualTo(10);
         assertThat(assessed.get(1).getFeeAmount()).isEqualByComparingTo("30.00");
         assertThat(assessed.get(1).getDaysPastDue()).isEqualTo(45);
+    }
+
+    @Test
+    void batchIsolatesFailuresSoBadPaymentsAreNotPersistedAndGoodOnesCommit() {
+        SubmitPaymentCommand good1 = buildFor(7001L, PaymentMethod.CHECK);
+        SubmitPaymentCommand bad = buildFor(7002L, PaymentMethod.CHECK);
+        bad.setLoanId(null); // violates NOT NULL on persist -> submit() throws at save
+        SubmitPaymentCommand good2 = buildFor(7003L, PaymentMethod.CHECK);
+
+        BatchResult result = commandService.processBatch(
+                new ProcessBatchCommand(List.of(good1, bad, good2)));
+
+        assertThat(result.getTotalSubmitted()).isEqualTo(3);
+        assertThat(result.getProcessed()).isEqualTo(2);
+        assertThat(result.getFailed()).isEqualTo(1);
+
+        // The failing payment's transaction rolled back in isolation; only the two
+        // good payments are persisted (not 3, and not 0 from a poisoned session).
+        assertThat(paymentRepository.count()).isEqualTo(2);
+        assertThat(events.ofType(PaymentReceived.class)).hasSize(2);
     }
 
     @Test
