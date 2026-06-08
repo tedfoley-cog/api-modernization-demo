@@ -1,0 +1,1577 @@
+{
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/loans",
+      "controller": "LoanController",
+      "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/loans/{id}",
+      "controller": "LoanController",
+      "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/loans/number/{applicationNumber}",
+      "controller": "LoanController",
+      "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/loans",
+      "controller": "LoanController",
+      "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/loans/{id}/terms",
+      "controller": "LoanController",
+      "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/loans/{id}/fund",
+      "controller": "LoanController",
+      "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/loans/end-of-day",
+      "controller": "LoanController",
+      "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/portfolio",
+      "controller": "ReportController",
+      "source_file": "main/java/com/acme/autofinance/controller/ReportController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/delinquency",
+      "controller": "ReportController",
+      "source_file": "main/java/com/acme/autofinance/controller/ReportController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports/dealers",
+      "controller": "ReportController",
+      "source_file": "main/java/com/acme/autofinance/controller/ReportController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/dealers/deals",
+      "controller": "DealerController",
+      "source_file": "main/java/com/acme/autofinance/controller/DealerController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dealers/{dealerId}/settlement",
+      "controller": "DealerController",
+      "source_file": "main/java/com/acme/autofinance/controller/DealerController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dealers/{dealerId}/inventory-financing",
+      "controller": "DealerController",
+      "source_file": "main/java/com/acme/autofinance/controller/DealerController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dealers",
+      "controller": "DealerController",
+      "source_file": "main/java/com/acme/autofinance/controller/DealerController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/accounts/{id}",
+      "controller": "AccountController",
+      "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/accounts/number/{accountNumber}",
+      "controller": "AccountController",
+      "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/accounts/{id}/address",
+      "controller": "AccountController",
+      "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/accounts/{id}/payoff",
+      "controller": "AccountController",
+      "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/accounts/{id}/early-termination",
+      "controller": "AccountController",
+      "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/accounts/delinquent",
+      "controller": "AccountController",
+      "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/payments",
+      "controller": "PaymentController",
+      "source_file": "main/java/com/acme/autofinance/controller/PaymentController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/payments/loan/{loanId}",
+      "controller": "PaymentController",
+      "source_file": "main/java/com/acme/autofinance/controller/PaymentController.java"
+    },
+    {
+      "method": "POST",
+      "path": "/api/payments/batch",
+      "controller": "PaymentController",
+      "source_file": "main/java/com/acme/autofinance/controller/PaymentController.java"
+    },
+    {
+      "method": "GET",
+      "path": "/api/payments/pending",
+      "controller": "PaymentController",
+      "source_file": "main/java/com/acme/autofinance/controller/PaymentController.java"
+    }
+  ],
+  "services": [
+    {
+      "class_name": "AccountService",
+      "source_file": "main/java/com/acme/autofinance/service/AccountService.java",
+      "methods": [
+        {
+          "name": "getAccountDetails",
+          "parameters": "Long accountId"
+        },
+        {
+          "name": "getByAccountNumber",
+          "parameters": "String accountNumber"
+        },
+        {
+          "name": "updateAddress",
+          "parameters": "Long accountId, String newAddress"
+        },
+        {
+          "name": "calculatePayoffQuote",
+          "parameters": "Long accountId"
+        },
+        {
+          "name": "processEarlyTermination",
+          "parameters": "Long accountId"
+        },
+        {
+          "name": "activateAccount",
+          "parameters": "Long loanId"
+        },
+        {
+          "name": "closeAccount",
+          "parameters": "Long loanId"
+        },
+        {
+          "name": "getDelinquentAccounts",
+          "parameters": "int daysPastDue"
+        }
+      ],
+      "method_count": 8,
+      "line_count": 165,
+      "autowired_dependencies": 3
+    },
+    {
+      "class_name": "DealerService",
+      "source_file": "main/java/com/acme/autofinance/service/DealerService.java",
+      "methods": [
+        {
+          "name": "submitDealPackage",
+          "parameters": "DealPackage dealPackage"
+        },
+        {
+          "name": "getDealerSettlement",
+          "parameters": "Long dealerId"
+        },
+        {
+          "name": "getInventoryFinancing",
+          "parameters": "Long dealerId"
+        },
+        {
+          "name": "getAllDealers",
+          "parameters": ""
+        }
+      ],
+      "method_count": 4,
+      "line_count": 159,
+      "autowired_dependencies": 4
+    },
+    {
+      "class_name": "ReportService",
+      "source_file": "main/java/com/acme/autofinance/service/ReportService.java",
+      "methods": [
+        {
+          "name": "getPortfolioSummary",
+          "parameters": ""
+        },
+        {
+          "name": "getDelinquencyReport",
+          "parameters": ""
+        },
+        {
+          "name": "getDealerPerformanceReport",
+          "parameters": ""
+        }
+      ],
+      "method_count": 3,
+      "line_count": 125,
+      "autowired_dependencies": 1
+    },
+    {
+      "class_name": "LoanService",
+      "source_file": "main/java/com/acme/autofinance/service/LoanService.java",
+      "methods": [
+        {
+          "name": "createApplication",
+          "parameters": "LoanApplication application"
+        },
+        {
+          "name": "getApplication",
+          "parameters": "Long id"
+        },
+        {
+          "name": "getByApplicationNumber",
+          "parameters": "String applicationNumber"
+        },
+        {
+          "name": "getByStatus",
+          "parameters": "LoanStatus status"
+        },
+        {
+          "name": "updateTerms",
+          "parameters": "Long id, BigDecimal amount, BigDecimal rate, Integer termMonths"
+        },
+        {
+          "name": "fundLoan",
+          "parameters": "Long id"
+        },
+        {
+          "name": "calculateMonthlyPayment",
+          "parameters": "BigDecimal principal, BigDecimal annualRate, int termMonths"
+        },
+        {
+          "name": "getPortfolioSummary",
+          "parameters": ""
+        },
+        {
+          "name": "getDelinquencyReport",
+          "parameters": ""
+        },
+        {
+          "name": "runEndOfDayProcessing",
+          "parameters": ""
+        },
+        {
+          "name": "getAllApplications",
+          "parameters": ""
+        }
+      ],
+      "method_count": 11,
+      "line_count": 478,
+      "autowired_dependencies": 8
+    },
+    {
+      "class_name": "PaymentService",
+      "source_file": "main/java/com/acme/autofinance/service/PaymentService.java",
+      "methods": [
+        {
+          "name": "submitPayment",
+          "parameters": "Payment payment"
+        },
+        {
+          "name": "processAchPayment",
+          "parameters": "Payment payment"
+        },
+        {
+          "name": "assessLateFee",
+          "parameters": "Long loanId, int daysPastDue"
+        },
+        {
+          "name": "getPaymentHistory",
+          "parameters": "Long loanId"
+        },
+        {
+          "name": "processBatchPayments",
+          "parameters": "List<Payment> payments"
+        },
+        {
+          "name": "getPendingPayments",
+          "parameters": ""
+        }
+      ],
+      "method_count": 6,
+      "line_count": 240,
+      "autowired_dependencies": 4
+    }
+  ],
+  "entities": [
+    {
+      "class_name": "Payment",
+      "table_name": "payments",
+      "source_file": "main/java/com/acme/autofinance/model/Payment.java",
+      "column_count": 14,
+      "field_count": 15,
+      "fields": [
+        {
+          "type": "Long",
+          "name": "id"
+        },
+        {
+          "type": "Long",
+          "name": "loanId"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "paymentAmount"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "principalAmount"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "interestAmount"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "feeAmount"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "lateFee"
+        },
+        {
+          "type": "PaymentMethod",
+          "name": "paymentMethod"
+        },
+        {
+          "type": "PaymentStatus",
+          "name": "status"
+        },
+        {
+          "type": "String",
+          "name": "confirmationNumber"
+        },
+        {
+          "type": "String",
+          "name": "achRoutingNumber"
+        },
+        {
+          "type": "String",
+          "name": "achAccountNumber"
+        },
+        {
+          "type": "Date",
+          "name": "paymentDate"
+        },
+        {
+          "type": "Date",
+          "name": "processedDate"
+        },
+        {
+          "type": "Date",
+          "name": "dueDate"
+        }
+      ]
+    },
+    {
+      "class_name": "Dealer",
+      "table_name": "dealers",
+      "source_file": "main/java/com/acme/autofinance/model/Dealer.java",
+      "column_count": 10,
+      "field_count": 11,
+      "fields": [
+        {
+          "type": "Long",
+          "name": "id"
+        },
+        {
+          "type": "String",
+          "name": "dealerCode"
+        },
+        {
+          "type": "String",
+          "name": "dealerName"
+        },
+        {
+          "type": "String",
+          "name": "contactName"
+        },
+        {
+          "type": "String",
+          "name": "contactEmail"
+        },
+        {
+          "type": "String",
+          "name": "region"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "reserveRate"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "holdbackPct"
+        },
+        {
+          "type": "Boolean",
+          "name": "active"
+        },
+        {
+          "type": "String",
+          "name": "tier"
+        },
+        {
+          "type": "Integer",
+          "name": "ytdVolume"
+        }
+      ]
+    },
+    {
+      "class_name": "Account",
+      "table_name": "accounts",
+      "source_file": "main/java/com/acme/autofinance/model/Account.java",
+      "column_count": 14,
+      "field_count": 15,
+      "fields": [
+        {
+          "type": "Long",
+          "name": "id"
+        },
+        {
+          "type": "String",
+          "name": "accountNumber"
+        },
+        {
+          "type": "Long",
+          "name": "loanId"
+        },
+        {
+          "type": "String",
+          "name": "customerName"
+        },
+        {
+          "type": "String",
+          "name": "customerEmail"
+        },
+        {
+          "type": "String",
+          "name": "customerPhone"
+        },
+        {
+          "type": "String",
+          "name": "mailingAddress"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "originalBalance"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "currentBalance"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "payoffAmount"
+        },
+        {
+          "type": "Integer",
+          "name": "daysPastDue"
+        },
+        {
+          "type": "AccountStatus",
+          "name": "status"
+        },
+        {
+          "type": "Date",
+          "name": "nextDueDate"
+        },
+        {
+          "type": "Date",
+          "name": "maturityDate"
+        },
+        {
+          "type": "Date",
+          "name": "lastPaymentDate"
+        }
+      ]
+    },
+    {
+      "class_name": "DealPackage",
+      "table_name": "deal_packages",
+      "source_file": "main/java/com/acme/autofinance/model/DealPackage.java",
+      "column_count": 12,
+      "field_count": 13,
+      "fields": [
+        {
+          "type": "Long",
+          "name": "id"
+        },
+        {
+          "type": "String",
+          "name": "dealNumber"
+        },
+        {
+          "type": "Long",
+          "name": "dealerId"
+        },
+        {
+          "type": "Long",
+          "name": "loanId"
+        },
+        {
+          "type": "String",
+          "name": "vehicleVin"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "salePrice"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "downPayment"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "tradeInValue"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "dealerReserve"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "holdbackAmount"
+        },
+        {
+          "type": "DealStatus",
+          "name": "status"
+        },
+        {
+          "type": "Date",
+          "name": "submissionDate"
+        },
+        {
+          "type": "Date",
+          "name": "settlementDate"
+        }
+      ]
+    },
+    {
+      "class_name": "LoanApplication",
+      "table_name": "loan_applications",
+      "source_file": "main/java/com/acme/autofinance/model/LoanApplication.java",
+      "column_count": 18,
+      "field_count": 19,
+      "fields": [
+        {
+          "type": "Long",
+          "name": "id"
+        },
+        {
+          "type": "String",
+          "name": "applicationNumber"
+        },
+        {
+          "type": "String",
+          "name": "applicantName"
+        },
+        {
+          "type": "String",
+          "name": "applicantSsn"
+        },
+        {
+          "type": "Integer",
+          "name": "creditScore"
+        },
+        {
+          "type": "String",
+          "name": "vehicleVin"
+        },
+        {
+          "type": "Integer",
+          "name": "vehicleYear"
+        },
+        {
+          "type": "String",
+          "name": "vehicleMake"
+        },
+        {
+          "type": "String",
+          "name": "vehicleModel"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "requestedAmount"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "approvedAmount"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "interestRate"
+        },
+        {
+          "type": "Integer",
+          "name": "termMonths"
+        },
+        {
+          "type": "BigDecimal",
+          "name": "monthlyPayment"
+        },
+        {
+          "type": "LoanStatus",
+          "name": "status"
+        },
+        {
+          "type": "Long",
+          "name": "dealerId"
+        },
+        {
+          "type": "Date",
+          "name": "applicationDate"
+        },
+        {
+          "type": "Date",
+          "name": "approvalDate"
+        },
+        {
+          "type": "Date",
+          "name": "fundingDate"
+        }
+      ]
+    }
+  ],
+  "dependency_graph": {
+    "nodes": [
+      {
+        "id": "AutoFinanceApplication",
+        "type": "other",
+        "label": "AutoFinanceApplication"
+      },
+      {
+        "id": "AccountService",
+        "type": "service",
+        "label": "AccountService"
+      },
+      {
+        "id": "DealerService",
+        "type": "service",
+        "label": "DealerService"
+      },
+      {
+        "id": "ReportService",
+        "type": "service",
+        "label": "ReportService"
+      },
+      {
+        "id": "LoanService",
+        "type": "service",
+        "label": "LoanService"
+      },
+      {
+        "id": "PaymentService",
+        "type": "service",
+        "label": "PaymentService"
+      },
+      {
+        "id": "LoanController",
+        "type": "controller",
+        "label": "LoanController"
+      },
+      {
+        "id": "ReportController",
+        "type": "controller",
+        "label": "ReportController"
+      },
+      {
+        "id": "DealerController",
+        "type": "controller",
+        "label": "DealerController"
+      },
+      {
+        "id": "AccountController",
+        "type": "controller",
+        "label": "AccountController"
+      },
+      {
+        "id": "PaymentController",
+        "type": "controller",
+        "label": "PaymentController"
+      },
+      {
+        "id": "AppConfig",
+        "type": "other",
+        "label": "AppConfig"
+      },
+      {
+        "id": "AccountRepository",
+        "type": "repository",
+        "label": "AccountRepository"
+      },
+      {
+        "id": "DealPackageRepository",
+        "type": "repository",
+        "label": "DealPackageRepository"
+      },
+      {
+        "id": "LoanRepository",
+        "type": "repository",
+        "label": "LoanRepository"
+      },
+      {
+        "id": "PaymentRepository",
+        "type": "repository",
+        "label": "PaymentRepository"
+      },
+      {
+        "id": "DealerRepository",
+        "type": "repository",
+        "label": "DealerRepository"
+      },
+      {
+        "id": "Payment",
+        "type": "entity",
+        "label": "Payment"
+      },
+      {
+        "id": "CreditDecision",
+        "type": "other",
+        "label": "CreditDecision"
+      },
+      {
+        "id": "PaymentMethod",
+        "type": "other",
+        "label": "PaymentMethod"
+      },
+      {
+        "id": "Dealer",
+        "type": "entity",
+        "label": "Dealer"
+      },
+      {
+        "id": "AccountStatus",
+        "type": "other",
+        "label": "AccountStatus"
+      },
+      {
+        "id": "Account",
+        "type": "entity",
+        "label": "Account"
+      },
+      {
+        "id": "DealPackage",
+        "type": "entity",
+        "label": "DealPackage"
+      },
+      {
+        "id": "PaymentStatus",
+        "type": "other",
+        "label": "PaymentStatus"
+      },
+      {
+        "id": "LoanStatus",
+        "type": "other",
+        "label": "LoanStatus"
+      },
+      {
+        "id": "LoanApplication",
+        "type": "entity",
+        "label": "LoanApplication"
+      },
+      {
+        "id": "DealStatus",
+        "type": "other",
+        "label": "DealStatus"
+      }
+    ],
+    "edges": [
+      {
+        "source": "AccountService",
+        "target": "AccountRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "AccountService",
+        "target": "LoanRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "AccountService",
+        "target": "PaymentRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "AccountService",
+        "target": "Payment",
+        "type": "method_call",
+        "call_count": 4
+      },
+      {
+        "source": "AccountService",
+        "target": "Account",
+        "type": "method_call",
+        "call_count": 15
+      },
+      {
+        "source": "DealerService",
+        "target": "DealerRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "DealerService",
+        "target": "DealPackageRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "DealerService",
+        "target": "LoanRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "DealerService",
+        "target": "LoanService",
+        "type": "field_injection"
+      },
+      {
+        "source": "DealerService",
+        "target": "Dealer",
+        "type": "method_call",
+        "call_count": 11
+      },
+      {
+        "source": "DealerService",
+        "target": "DealPackage",
+        "type": "method_call",
+        "call_count": 12
+      },
+      {
+        "source": "LoanService",
+        "target": "LoanRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "LoanService",
+        "target": "PaymentRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "LoanService",
+        "target": "AccountRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "LoanService",
+        "target": "DealerRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "LoanService",
+        "target": "DealPackageRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "LoanService",
+        "target": "PaymentService",
+        "type": "field_injection"
+      },
+      {
+        "source": "LoanService",
+        "target": "AccountService",
+        "type": "field_injection"
+      },
+      {
+        "source": "LoanService",
+        "target": "Account",
+        "type": "method_call",
+        "call_count": 21
+      },
+      {
+        "source": "PaymentService",
+        "target": "PaymentRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "PaymentService",
+        "target": "LoanRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "PaymentService",
+        "target": "AccountRepository",
+        "type": "field_injection"
+      },
+      {
+        "source": "PaymentService",
+        "target": "AccountService",
+        "type": "field_injection"
+      },
+      {
+        "source": "PaymentService",
+        "target": "Payment",
+        "type": "method_call",
+        "call_count": 20
+      },
+      {
+        "source": "PaymentService",
+        "target": "Account",
+        "type": "method_call",
+        "call_count": 6
+      },
+      {
+        "source": "LoanController",
+        "target": "LoanService",
+        "type": "field_injection"
+      },
+      {
+        "source": "ReportController",
+        "target": "ReportService",
+        "type": "field_injection"
+      },
+      {
+        "source": "ReportController",
+        "target": "LoanService",
+        "type": "field_injection"
+      },
+      {
+        "source": "DealerController",
+        "target": "DealerService",
+        "type": "field_injection"
+      },
+      {
+        "source": "DealerController",
+        "target": "DealPackage",
+        "type": "method_call",
+        "call_count": 3
+      },
+      {
+        "source": "AccountController",
+        "target": "AccountService",
+        "type": "field_injection"
+      },
+      {
+        "source": "PaymentController",
+        "target": "PaymentService",
+        "type": "field_injection"
+      },
+      {
+        "source": "PaymentController",
+        "target": "Payment",
+        "type": "method_call",
+        "call_count": 3
+      }
+    ],
+    "node_count": 28,
+    "edge_count": 33
+  },
+  "coupling_scores": [
+    {
+      "service": "LoanService",
+      "domain": "loan-origination",
+      "afferent_coupling": 3,
+      "efferent_coupling": 7,
+      "total_coupling": 10,
+      "instability": 0.7,
+      "risk_score": 30.3,
+      "outbound_dependencies": 8,
+      "inbound_dependencies": 3,
+      "cross_domain_calls": 7,
+      "line_count": 478,
+      "method_count": 11,
+      "autowired_count": 8
+    },
+    {
+      "service": "AccountService",
+      "domain": "account-servicing",
+      "afferent_coupling": 3,
+      "efferent_coupling": 4,
+      "total_coupling": 7,
+      "instability": 0.57,
+      "risk_score": 19.6,
+      "outbound_dependencies": 5,
+      "inbound_dependencies": 3,
+      "cross_domain_calls": 4,
+      "line_count": 165,
+      "method_count": 8,
+      "autowired_count": 3
+    },
+    {
+      "service": "PaymentService",
+      "domain": "payment-processing",
+      "afferent_coupling": 2,
+      "efferent_coupling": 5,
+      "total_coupling": 7,
+      "instability": 0.71,
+      "risk_score": 19.4,
+      "outbound_dependencies": 6,
+      "inbound_dependencies": 2,
+      "cross_domain_calls": 5,
+      "line_count": 240,
+      "method_count": 6,
+      "autowired_count": 4
+    },
+    {
+      "service": "DealerService",
+      "domain": "dealer-integration",
+      "afferent_coupling": 1,
+      "efferent_coupling": 4,
+      "total_coupling": 5,
+      "instability": 0.8,
+      "risk_score": 13.6,
+      "outbound_dependencies": 6,
+      "inbound_dependencies": 1,
+      "cross_domain_calls": 4,
+      "line_count": 159,
+      "method_count": 4,
+      "autowired_count": 4
+    },
+    {
+      "service": "ReportService",
+      "domain": "reporting",
+      "afferent_coupling": 1,
+      "efferent_coupling": 0,
+      "total_coupling": 1,
+      "instability": 0.0,
+      "risk_score": 4.8,
+      "outbound_dependencies": 0,
+      "inbound_dependencies": 1,
+      "cross_domain_calls": 0,
+      "line_count": 125,
+      "method_count": 3,
+      "autowired_count": 1
+    }
+  ],
+  "domain_boundaries": [
+    {
+      "domain": "loan-origination",
+      "description": "Loan application, credit decisioning, and funding workflow",
+      "proposed_service": "loan-origination-service",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/loans",
+          "controller": "LoanController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/loans/{id}",
+          "controller": "LoanController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/loans/number/{applicationNumber}",
+          "controller": "LoanController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/loans",
+          "controller": "LoanController"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/loans/{id}/terms",
+          "controller": "LoanController"
+        },
+        {
+          "method": "POST",
+          "path": "/api/loans/{id}/fund",
+          "controller": "LoanController"
+        },
+        {
+          "method": "POST",
+          "path": "/api/loans/end-of-day",
+          "controller": "LoanController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/payments/loan/{loanId}",
+          "controller": "PaymentController"
+        }
+      ],
+      "endpoint_count": 8,
+      "services": [
+        {
+          "class_name": "LoanService",
+          "method_count": 11,
+          "line_count": 478
+        }
+      ],
+      "entities": [
+        {
+          "class_name": "LoanApplication",
+          "table_name": "loan_applications"
+        }
+      ],
+      "cross_boundary_dependencies": 11,
+      "extraction_complexity": "HIGH"
+    },
+    {
+      "domain": "payment-processing",
+      "description": "Payment submission, allocation, ACH processing, and late fee assessment",
+      "proposed_service": "payment-processing-service",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/payments",
+          "controller": "PaymentController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/payments/loan/{loanId}",
+          "controller": "PaymentController"
+        },
+        {
+          "method": "POST",
+          "path": "/api/payments/batch",
+          "controller": "PaymentController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/payments/pending",
+          "controller": "PaymentController"
+        }
+      ],
+      "endpoint_count": 4,
+      "services": [
+        {
+          "class_name": "PaymentService",
+          "method_count": 6,
+          "line_count": 240
+        }
+      ],
+      "entities": [
+        {
+          "class_name": "Payment",
+          "table_name": "payments"
+        }
+      ],
+      "cross_boundary_dependencies": 8,
+      "extraction_complexity": "MEDIUM"
+    },
+    {
+      "domain": "account-servicing",
+      "description": "Account management, payoff quotes, address updates, early termination",
+      "proposed_service": "account-servicing-service",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/accounts/{id}",
+          "controller": "AccountController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/accounts/number/{accountNumber}",
+          "controller": "AccountController"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/accounts/{id}/address",
+          "controller": "AccountController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/accounts/{id}/payoff",
+          "controller": "AccountController"
+        },
+        {
+          "method": "POST",
+          "path": "/api/accounts/{id}/early-termination",
+          "controller": "AccountController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/accounts/delinquent",
+          "controller": "AccountController"
+        }
+      ],
+      "endpoint_count": 6,
+      "services": [
+        {
+          "class_name": "AccountService",
+          "method_count": 8,
+          "line_count": 165
+        }
+      ],
+      "entities": [
+        {
+          "class_name": "Account",
+          "table_name": "accounts"
+        }
+      ],
+      "cross_boundary_dependencies": 8,
+      "extraction_complexity": "MEDIUM"
+    },
+    {
+      "domain": "dealer-integration",
+      "description": "Dealer deal submission, settlement, reserve/holdback, inventory financing",
+      "proposed_service": "dealer-integration-service",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/reports/dealers",
+          "controller": "ReportController"
+        },
+        {
+          "method": "POST",
+          "path": "/api/dealers/deals",
+          "controller": "DealerController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/dealers/{dealerId}/settlement",
+          "controller": "DealerController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/dealers/{dealerId}/inventory-financing",
+          "controller": "DealerController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/dealers",
+          "controller": "DealerController"
+        }
+      ],
+      "endpoint_count": 5,
+      "services": [
+        {
+          "class_name": "DealerService",
+          "method_count": 4,
+          "line_count": 159
+        }
+      ],
+      "entities": [
+        {
+          "class_name": "Dealer",
+          "table_name": "dealers"
+        },
+        {
+          "class_name": "DealPackage",
+          "table_name": "deal_packages"
+        }
+      ],
+      "cross_boundary_dependencies": 7,
+      "extraction_complexity": "MEDIUM"
+    },
+    {
+      "domain": "reporting",
+      "description": "Portfolio summary, delinquency reporting, dealer performance, regulatory",
+      "proposed_service": "reporting-service",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/reports/portfolio",
+          "controller": "ReportController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/reports/delinquency",
+          "controller": "ReportController"
+        },
+        {
+          "method": "GET",
+          "path": "/api/reports/dealers",
+          "controller": "ReportController"
+        }
+      ],
+      "endpoint_count": 3,
+      "services": [
+        {
+          "class_name": "ReportService",
+          "method_count": 3,
+          "line_count": 125
+        }
+      ],
+      "entities": [],
+      "cross_boundary_dependencies": 1,
+      "extraction_complexity": "LOW"
+    }
+  ],
+  "event_catalog": [
+    {
+      "event_name": "LoanApplicationSubmitted",
+      "trigger": "New loan application created",
+      "current_implementation": "Synchronous method call in LoanService.createApplication()",
+      "producers": [
+        "loan-origination-service"
+      ],
+      "consumers": [
+        "credit-decisioning",
+        "dealer-integration-service"
+      ],
+      "payload_fields": [
+        "applicationId",
+        "applicationNumber",
+        "applicantName",
+        "requestedAmount",
+        "vehicleVin",
+        "dealerId"
+      ],
+      "domain": "loan-origination",
+      "bounded_context": "loan-origination-service"
+    },
+    {
+      "event_name": "CreditDecisionMade",
+      "trigger": "Credit check completed (approved or declined)",
+      "current_implementation": "Inline in LoanService.performCreditCheck() \u2014 synchronous, no event",
+      "producers": [
+        "loan-origination-service"
+      ],
+      "consumers": [
+        "account-servicing-service",
+        "dealer-integration-service",
+        "reporting-service"
+      ],
+      "payload_fields": [
+        "applicationId",
+        "decision",
+        "creditScore",
+        "riskTier",
+        "approvedAmount",
+        "offeredRate"
+      ],
+      "domain": "loan-origination",
+      "bounded_context": "loan-origination-service"
+    },
+    {
+      "event_name": "LoanFunded",
+      "trigger": "Loan moves to FUNDED status",
+      "current_implementation": "LoanService.fundLoan() synchronously updates account and deal package",
+      "producers": [
+        "loan-origination-service"
+      ],
+      "consumers": [
+        "account-servicing-service",
+        "dealer-integration-service",
+        "reporting-service"
+      ],
+      "payload_fields": [
+        "loanId",
+        "applicationNumber",
+        "fundingDate",
+        "approvedAmount",
+        "interestRate",
+        "termMonths"
+      ],
+      "domain": "loan-origination",
+      "bounded_context": "loan-origination-service"
+    },
+    {
+      "event_name": "PaymentReceived",
+      "trigger": "Payment submitted by borrower",
+      "current_implementation": "PaymentService.submitPayment() \u2014 synchronous, calls allocatePayment inline",
+      "producers": [
+        "payment-processing-service"
+      ],
+      "consumers": [
+        "account-servicing-service",
+        "reporting-service"
+      ],
+      "payload_fields": [
+        "paymentId",
+        "loanId",
+        "paymentAmount",
+        "paymentMethod",
+        "confirmationNumber"
+      ],
+      "domain": "payment-processing",
+      "bounded_context": "payment-processing-service"
+    },
+    {
+      "event_name": "PaymentAllocated",
+      "trigger": "Payment broken down into principal/interest/fees",
+      "current_implementation": "Inline in PaymentService.allocatePayment() \u2014 synchronous",
+      "producers": [
+        "payment-processing-service"
+      ],
+      "consumers": [
+        "account-servicing-service"
+      ],
+      "payload_fields": [
+        "paymentId",
+        "loanId",
+        "principalAmount",
+        "interestAmount",
+        "feeAmount"
+      ],
+      "domain": "payment-processing",
+      "bounded_context": "payment-processing-service"
+    },
+    {
+      "event_name": "PaymentProcessed",
+      "trigger": "ACH/EFT payment completed successfully",
+      "current_implementation": "PaymentService.processAchPayment() synchronously updates account balance and loan status",
+      "producers": [
+        "payment-processing-service"
+      ],
+      "consumers": [
+        "account-servicing-service",
+        "loan-origination-service",
+        "reporting-service"
+      ],
+      "payload_fields": [
+        "paymentId",
+        "loanId",
+        "processedDate",
+        "status",
+        "principalApplied",
+        "newBalance"
+      ],
+      "domain": "payment-processing",
+      "bounded_context": "payment-processing-service"
+    },
+    {
+      "event_name": "LateFeesAssessed",
+      "trigger": "Account past due, late fee charged",
+      "current_implementation": "PaymentService.assessLateFee() \u2014 called synchronously from LoanService.runEndOfDayProcessing()",
+      "producers": [
+        "payment-processing-service"
+      ],
+      "consumers": [
+        "account-servicing-service",
+        "reporting-service"
+      ],
+      "payload_fields": [
+        "loanId",
+        "feeAmount",
+        "daysPastDue",
+        "assessmentDate"
+      ],
+      "domain": "payment-processing",
+      "bounded_context": "payment-processing-service"
+    },
+    {
+      "event_name": "AccountCreated",
+      "trigger": "New account created after loan approval",
+      "current_implementation": "Inline in LoanService.createApplication() \u2014 wrong service creates the account",
+      "producers": [
+        "account-servicing-service"
+      ],
+      "consumers": [
+        "reporting-service"
+      ],
+      "payload_fields": [
+        "accountId",
+        "accountNumber",
+        "loanId",
+        "customerName",
+        "originalBalance"
+      ],
+      "domain": "account-servicing",
+      "bounded_context": "account-servicing-service"
+    },
+    {
+      "event_name": "AccountBalanceUpdated",
+      "trigger": "Balance changes after payment, adjustment, or payoff",
+      "current_implementation": "PaymentService.updateAccountBalance() \u2014 payment service directly mutates account state",
+      "producers": [
+        "account-servicing-service"
+      ],
+      "consumers": [
+        "reporting-service",
+        "loan-origination-service"
+      ],
+      "payload_fields": [
+        "accountId",
+        "previousBalance",
+        "newBalance",
+        "changeAmount",
+        "changeReason"
+      ],
+      "domain": "account-servicing",
+      "bounded_context": "account-servicing-service"
+    },
+    {
+      "event_name": "AccountDelinquent",
+      "trigger": "Account crosses delinquency threshold",
+      "current_implementation": "LoanService.runEndOfDayProcessing() \u2014 loan service manages account delinquency",
+      "producers": [
+        "account-servicing-service"
+      ],
+      "consumers": [
+        "payment-processing-service",
+        "reporting-service"
+      ],
+      "payload_fields": [
+        "accountId",
+        "loanId",
+        "daysPastDue",
+        "delinquencyBucket",
+        "currentBalance"
+      ],
+      "domain": "account-servicing",
+      "bounded_context": "account-servicing-service"
+    },
+    {
+      "event_name": "DealPackageSubmitted",
+      "trigger": "Dealer submits a deal package",
+      "current_implementation": "DealerService.submitDealPackage() synchronously creates loan application",
+      "producers": [
+        "dealer-integration-service"
+      ],
+      "consumers": [
+        "loan-origination-service"
+      ],
+      "payload_fields": [
+        "dealNumber",
+        "dealerId",
+        "vehicleVin",
+        "salePrice",
+        "downPayment",
+        "tradeInValue"
+      ],
+      "domain": "dealer-integration",
+      "bounded_context": "dealer-integration-service"
+    },
+    {
+      "event_name": "DealerSettlementCalculated",
+      "trigger": "Settlement amounts computed for dealer",
+      "current_implementation": "DealerService.getDealerSettlement() \u2014 computed on-demand, not event-driven",
+      "producers": [
+        "dealer-integration-service"
+      ],
+      "consumers": [
+        "reporting-service"
+      ],
+      "payload_fields": [
+        "dealerId",
+        "dealerCode",
+        "totalReserves",
+        "totalHoldbacks",
+        "netSettlement"
+      ],
+      "domain": "dealer-integration",
+      "bounded_context": "dealer-integration-service"
+    }
+  ],
+  "metrics": {
+    "total_java_files": 28,
+    "total_lines_of_code": 2237,
+    "total_service_loc": 1167,
+    "total_endpoints": 24,
+    "total_services": 5,
+    "avg_methods_per_service": 6.4,
+    "largest_service": {
+      "name": "LoanService",
+      "loc": 478
+    },
+    "total_autowired_injections": 20
+  }
+}

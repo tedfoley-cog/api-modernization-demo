@@ -1,0 +1,339 @@
+[
+  {
+    "class_name": "Payment",
+    "table_name": "payments",
+    "source_file": "main/java/com/acme/autofinance/model/Payment.java",
+    "column_count": 14,
+    "field_count": 15,
+    "fields": [
+      {
+        "type": "Long",
+        "name": "id"
+      },
+      {
+        "type": "Long",
+        "name": "loanId"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "paymentAmount"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "principalAmount"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "interestAmount"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "feeAmount"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "lateFee"
+      },
+      {
+        "type": "PaymentMethod",
+        "name": "paymentMethod"
+      },
+      {
+        "type": "PaymentStatus",
+        "name": "status"
+      },
+      {
+        "type": "String",
+        "name": "confirmationNumber"
+      },
+      {
+        "type": "String",
+        "name": "achRoutingNumber"
+      },
+      {
+        "type": "String",
+        "name": "achAccountNumber"
+      },
+      {
+        "type": "Date",
+        "name": "paymentDate"
+      },
+      {
+        "type": "Date",
+        "name": "processedDate"
+      },
+      {
+        "type": "Date",
+        "name": "dueDate"
+      }
+    ]
+  },
+  {
+    "class_name": "Dealer",
+    "table_name": "dealers",
+    "source_file": "main/java/com/acme/autofinance/model/Dealer.java",
+    "column_count": 10,
+    "field_count": 11,
+    "fields": [
+      {
+        "type": "Long",
+        "name": "id"
+      },
+      {
+        "type": "String",
+        "name": "dealerCode"
+      },
+      {
+        "type": "String",
+        "name": "dealerName"
+      },
+      {
+        "type": "String",
+        "name": "contactName"
+      },
+      {
+        "type": "String",
+        "name": "contactEmail"
+      },
+      {
+        "type": "String",
+        "name": "region"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "reserveRate"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "holdbackPct"
+      },
+      {
+        "type": "Boolean",
+        "name": "active"
+      },
+      {
+        "type": "String",
+        "name": "tier"
+      },
+      {
+        "type": "Integer",
+        "name": "ytdVolume"
+      }
+    ]
+  },
+  {
+    "class_name": "Account",
+    "table_name": "accounts",
+    "source_file": "main/java/com/acme/autofinance/model/Account.java",
+    "column_count": 14,
+    "field_count": 15,
+    "fields": [
+      {
+        "type": "Long",
+        "name": "id"
+      },
+      {
+        "type": "String",
+        "name": "accountNumber"
+      },
+      {
+        "type": "Long",
+        "name": "loanId"
+      },
+      {
+        "type": "String",
+        "name": "customerName"
+      },
+      {
+        "type": "String",
+        "name": "customerEmail"
+      },
+      {
+        "type": "String",
+        "name": "customerPhone"
+      },
+      {
+        "type": "String",
+        "name": "mailingAddress"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "originalBalance"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "currentBalance"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "payoffAmount"
+      },
+      {
+        "type": "Integer",
+        "name": "daysPastDue"
+      },
+      {
+        "type": "AccountStatus",
+        "name": "status"
+      },
+      {
+        "type": "Date",
+        "name": "nextDueDate"
+      },
+      {
+        "type": "Date",
+        "name": "maturityDate"
+      },
+      {
+        "type": "Date",
+        "name": "lastPaymentDate"
+      }
+    ]
+  },
+  {
+    "class_name": "DealPackage",
+    "table_name": "deal_packages",
+    "source_file": "main/java/com/acme/autofinance/model/DealPackage.java",
+    "column_count": 12,
+    "field_count": 13,
+    "fields": [
+      {
+        "type": "Long",
+        "name": "id"
+      },
+      {
+        "type": "String",
+        "name": "dealNumber"
+      },
+      {
+        "type": "Long",
+        "name": "dealerId"
+      },
+      {
+        "type": "Long",
+        "name": "loanId"
+      },
+      {
+        "type": "String",
+        "name": "vehicleVin"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "salePrice"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "downPayment"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "tradeInValue"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "dealerReserve"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "holdbackAmount"
+      },
+      {
+        "type": "DealStatus",
+        "name": "status"
+      },
+      {
+        "type": "Date",
+        "name": "submissionDate"
+      },
+      {
+        "type": "Date",
+        "name": "settlementDate"
+      }
+    ]
+  },
+  {
+    "class_name": "LoanApplication",
+    "table_name": "loan_applications",
+    "source_file": "main/java/com/acme/autofinance/model/LoanApplication.java",
+    "column_count": 18,
+    "field_count": 19,
+    "fields": [
+      {
+        "type": "Long",
+        "name": "id"
+      },
+      {
+        "type": "String",
+        "name": "applicationNumber"
+      },
+      {
+        "type": "String",
+        "name": "applicantName"
+      },
+      {
+        "type": "String",
+        "name": "applicantSsn"
+      },
+      {
+        "type": "Integer",
+        "name": "creditScore"
+      },
+      {
+        "type": "String",
+        "name": "vehicleVin"
+      },
+      {
+        "type": "Integer",
+        "name": "vehicleYear"
+      },
+      {
+        "type": "String",
+        "name": "vehicleMake"
+      },
+      {
+        "type": "String",
+        "name": "vehicleModel"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "requestedAmount"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "approvedAmount"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "interestRate"
+      },
+      {
+        "type": "Integer",
+        "name": "termMonths"
+      },
+      {
+        "type": "BigDecimal",
+        "name": "monthlyPayment"
+      },
+      {
+        "type": "LoanStatus",
+        "name": "status"
+      },
+      {
+        "type": "Long",
+        "name": "dealerId"
+      },
+      {
+        "type": "Date",
+        "name": "applicationDate"
+      },
+      {
+        "type": "Date",
+        "name": "approvalDate"
+      },
+      {
+        "type": "Date",
+        "name": "fundingDate"
+      }
+    ]
+  }
+]
