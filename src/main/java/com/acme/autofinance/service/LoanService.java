@@ -1,5 +1,7 @@
 package com.acme.autofinance.service;
 
+import com.acme.autofinance.events.DomainEventPublisher;
+import com.acme.autofinance.events.LateFeeRequiredEvent;
 import com.acme.autofinance.model.Account;
 import com.acme.autofinance.model.AccountStatus;
 import com.acme.autofinance.model.CreditDecision;
@@ -7,13 +9,10 @@ import com.acme.autofinance.model.DealPackage;
 import com.acme.autofinance.model.DealStatus;
 import com.acme.autofinance.model.LoanApplication;
 import com.acme.autofinance.model.LoanStatus;
-import com.acme.autofinance.model.Payment;
-import com.acme.autofinance.model.PaymentStatus;
 import com.acme.autofinance.repository.AccountRepository;
 import com.acme.autofinance.repository.DealPackageRepository;
 import com.acme.autofinance.repository.DealerRepository;
 import com.acme.autofinance.repository.LoanRepository;
-import com.acme.autofinance.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -46,9 +45,6 @@ public class LoanService {
     private LoanRepository loanRepository;
 
     @Autowired
-    private PaymentRepository paymentRepository;
-
-    @Autowired
     private AccountRepository accountRepository;
 
     @Autowired
@@ -61,10 +57,10 @@ public class LoanService {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private PaymentService paymentService;
+    private AccountService accountService;
 
     @Autowired
-    private AccountService accountService;
+    private DomainEventPublisher eventPublisher;
 
     // ========================================================================
     // LOAN ORIGINATION — should be its own bounded context
@@ -446,9 +442,10 @@ public class LoanService {
                 accountRepository.save(account);
                 accountsUpdated++;
 
-                // Assess late fees — synchronous call to PaymentService
+                // Assess late fees — request the Payment context via an event
+                // instead of calling PaymentService synchronously.
                 if (daysPastDue > 15) {
-                    paymentService.assessLateFee(account.getLoanId(), daysPastDue);
+                    eventPublisher.publish(new LateFeeRequiredEvent(account.getLoanId(), daysPastDue));
                     lateFeesAssessed++;
                 }
 
