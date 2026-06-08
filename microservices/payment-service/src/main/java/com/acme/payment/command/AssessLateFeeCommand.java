@@ -1,7 +1,7 @@
 package com.acme.payment.command;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 /**
@@ -14,7 +14,7 @@ public class AssessLateFeeCommand {
     private Long loanId;
 
     @NotNull
-    @PositiveOrZero
+    @Positive
     private Integer daysPastDue;
 
     private BigDecimal outstandingBalance;

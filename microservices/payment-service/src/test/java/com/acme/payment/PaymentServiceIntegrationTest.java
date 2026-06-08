@@ -117,6 +117,24 @@ class PaymentServiceIntegrationTest {
     }
 
     @Test
+    void achWithInvalidRoutingNumberFailsAndPublishesNoProcessedEvent() throws Exception {
+        SubmitPaymentCommand bad = sampleCommand(PaymentMethod.ACH);
+        bad.setAchRoutingNumber("123"); // invalid: not 9 digits
+
+        mockMvc.perform(post("/api/payments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(bad)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("FAILED"));
+
+        // Receipt + allocation still happen, but a failed settlement must NOT
+        // emit PaymentProcessed (it would carry a null processedDate).
+        assertThat(events.ofType(PaymentReceived.class)).hasSize(1);
+        assertThat(events.ofType(PaymentAllocated.class)).hasSize(1);
+        assertThat(events.ofType(PaymentProcessed.class)).isEmpty();
+    }
+
+    @Test
     void assessingLateFeePublishesLateFeesAssessedWithScheduleAmount() {
         AssessLateFeeCommand flat = new AssessLateFeeCommand();
         flat.setLoanId(2002L);

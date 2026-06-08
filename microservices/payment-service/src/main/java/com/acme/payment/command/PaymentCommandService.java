@@ -56,13 +56,18 @@ public class PaymentCommandService {
                 allocation.getPrincipalAmount(), allocation.getInterestAmount(), allocation.getFeeAmount()));
 
         if (saved.isAch()) {
-            saved.settleAch();
+            boolean settled = saved.settleAch();
             saved = paymentRepository.save(saved);
 
-            BigDecimal newBalance = computeNewBalance(command.getOutstandingBalance(), saved.getPrincipalAmount());
-            eventPublisher.publish(new PaymentProcessed(
-                    saved.getId(), saved.getLoanId(), saved.getProcessedDate(),
-                    saved.getStatus(), saved.getPrincipalAmount(), newBalance));
+            // Only a successful settlement yields a PaymentProcessed event; a
+            // failed ACH leaves the payment FAILED with no processedDate, which
+            // would violate the PaymentProcessed contract (processedDate is required).
+            if (settled) {
+                BigDecimal newBalance = computeNewBalance(command.getOutstandingBalance(), saved.getPrincipalAmount());
+                eventPublisher.publish(new PaymentProcessed(
+                        saved.getId(), saved.getLoanId(), saved.getProcessedDate(),
+                        saved.getStatus(), saved.getPrincipalAmount(), newBalance));
+            }
         }
 
         return saved;
