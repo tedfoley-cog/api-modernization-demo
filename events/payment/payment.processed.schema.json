@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acme.com/events/payment/payment.processed.schema.json",
+  "title": "PaymentProcessed",
+  "description": "Emitted when an ACH/EFT payment finishes processing. Replaces the synchronous account balance and loan status updates in PaymentService.processAchPayment().",
+  "type": "object",
+  "required": ["eventId", "occurredAt", "eventType", "paymentId", "loanId", "status", "principalApplied"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "eventType": { "const": "payment.processed" },
+    "paymentId": { "type": "integer" },
+    "loanId": { "type": "integer" },
+    "status": { "type": "string", "enum": ["PENDING", "PROCESSING", "COMPLETED", "FAILED", "REVERSED", "NSF"] },
+    "principalApplied": { "type": "number" }
+  }
+}

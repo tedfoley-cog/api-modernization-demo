@@ -164,9 +164,75 @@ def compute_metrics(java_files: list[dict], services: list[dict], endpoints: lis
     }
 
 
+def generate_progress(
+    boundaries: list[dict],
+    events: list[dict],
+    microservices_dir: str,
+) -> dict:
+    """Detect which bounded contexts have been converted to microservices.
+
+    A context counts as converted when a directory whose name starts with the domain's
+    leading token (e.g. ``payment-service`` for ``payment-processing``) exists under
+    ``microservices/``. Event names and integration-test counts are derived from the
+    catalog and the converted service's test sources.
+    """
+    converted_dirs = []
+    if os.path.isdir(microservices_dir):
+        converted_dirs = [
+            d for d in os.listdir(microservices_dir)
+            if os.path.isdir(os.path.join(microservices_dir, d))
+        ]
+
+    contexts = []
+    converted_count = 0
+    for boundary in boundaries:
+        domain = boundary["domain"]
+        domain_token = domain.split("-")[0]
+        match = next((d for d in converted_dirs if d.startswith(domain_token)), None)
+
+        if match:
+            converted_count += 1
+            service_path = os.path.join(microservices_dir, match)
+            domain_events = [e["event_name"] for e in events if e.get("domain") == domain]
+            contexts.append({
+                "domain": domain,
+                "proposed_service": boundary["proposed_service"],
+                "status": "converted",
+                "location": service_path,
+                "pattern": "Event-driven + CQRS, owns its own datastore",
+                "events": domain_events,
+                "integration_tests": _count_tests(service_path),
+            })
+        else:
+            contexts.append({
+                "domain": domain,
+                "proposed_service": boundary["proposed_service"],
+                "status": "pending",
+            })
+
+    return {
+        "total_contexts": len(boundaries),
+        "converted_count": converted_count,
+        "contexts": contexts,
+    }
+
+
+def _count_tests(service_path: str) -> int:
+    """Count JUnit @Test methods under a converted service's test sources."""
+    test_root = os.path.join(service_path, "src", "test")
+    count = 0
+    for root, _dirs, files in os.walk(test_root):
+        for f in files:
+            if f.endswith(".java"):
+                with open(os.path.join(root, f), encoding="utf-8") as fh:
+                    count += len(re.findall(r"@Test\b", fh.read()))
+    return count
+
+
 def main():
     source_dir = sys.argv[1] if len(sys.argv) > 1 else "src"
     output_dir = sys.argv[2] if len(sys.argv) > 2 else "dashboard/data"
+    microservices_dir = sys.argv[3] if len(sys.argv) > 3 else "microservices"
 
     print(f"Analyzing Java source in: {source_dir}")
     print(f"Output directory: {output_dir}")
@@ -209,6 +275,10 @@ def main():
     metrics = compute_metrics(java_files, services, endpoints)
     print(f"Total LOC: {metrics['total_lines_of_code']}")
 
+    # Step 10: Detect modernization progress (which contexts are now microservices)
+    progress = generate_progress(boundaries, events, microservices_dir)
+    print(f"Modernization: {progress['converted_count']}/{progress['total_contexts']} contexts converted")
+
     # Write output JSON files
     analysis_output = {
         "endpoints": endpoints,
@@ -219,7 +289,11 @@ def main():
         "domain_boundaries": boundaries,
         "event_catalog": events,
         "metrics": metrics,
+        "modernization_progress": progress,
     }
+
+    with open(os.path.join(output_dir, "progress.json"), "w") as f:
+        json.dump(progress, f, indent=2, default=str)
 
     with open(os.path.join(output_dir, "analysis.json"), "w") as f:
         json.dump(analysis_output, f, indent=2, default=str)

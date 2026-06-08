@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acme.com/events/payment/payment.allocated.schema.json",
+  "title": "PaymentAllocated",
+  "description": "Emitted once a payment is broken down into principal/interest/fees. Replaces the inline mutation in PaymentService.allocatePayment().",
+  "type": "object",
+  "required": ["eventId", "occurredAt", "eventType", "paymentId", "loanId", "principalAmount", "interestAmount", "feeAmount"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "eventType": { "const": "payment.allocated" },
+    "paymentId": { "type": "integer" },
+    "loanId": { "type": "integer" },
+    "principalAmount": { "type": "number" },
+    "interestAmount": { "type": "number" },
+    "feeAmount": { "type": "number" }
+  }
+}

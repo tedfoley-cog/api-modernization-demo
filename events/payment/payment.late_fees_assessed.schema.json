@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acme.com/events/payment/payment.late_fees_assessed.schema.json",
+  "title": "LateFeesAssessed",
+  "description": "Emitted when a late fee is charged to a delinquent account. Replaces PaymentService.assessLateFee() called synchronously from LoanService.runEndOfDayProcessing().",
+  "type": "object",
+  "required": ["eventId", "occurredAt", "eventType", "paymentId", "loanId", "feeAmount", "daysPastDue"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "eventType": { "const": "payment.late_fees_assessed" },
+    "paymentId": { "type": "integer" },
+    "loanId": { "type": "integer" },
+    "feeAmount": { "type": "number" },
+    "daysPastDue": { "type": "integer" }
+  }
+}

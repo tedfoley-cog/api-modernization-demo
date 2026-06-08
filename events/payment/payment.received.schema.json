@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://acme.com/events/payment/payment.received.schema.json",
+  "title": "PaymentReceived",
+  "description": "Emitted when a borrower submits a payment. Replaces the inline body of PaymentService.submitPayment().",
+  "type": "object",
+  "required": ["eventId", "occurredAt", "eventType", "paymentId", "loanId", "paymentAmount", "confirmationNumber"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "eventType": { "const": "payment.received" },
+    "paymentId": { "type": "integer" },
+    "loanId": { "type": "integer" },
+    "paymentAmount": { "type": "number" },
+    "paymentMethod": { "type": "string", "enum": ["ACH", "EFT", "CHECK", "WIRE", "DEALER_REMITTANCE"] },
+    "confirmationNumber": { "type": "string" }
+  }
+}
