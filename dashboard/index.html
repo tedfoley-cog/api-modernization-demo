@@ -185,9 +185,27 @@
         renderCoupling(data.coupling_scores);
         renderBoundaries(data.domain_boundaries);
         renderEvents(data.event_catalog);
+        renderProgress(data.domain_boundaries);
       } catch (e) {
         console.log('No analysis data yet — dashboard in placeholder state');
       }
+    }
+
+    // Bounded contexts that have been extracted into event-driven microservices.
+    const CONVERTED_CONTEXTS = ['payment-processing-service'];
+
+    function renderProgress(boundaries) {
+      const total = (boundaries && boundaries.length) ? boundaries.length : 5;
+      const converted = CONVERTED_CONTEXTS.length;
+      const pct = Math.round((converted / total) * 100);
+
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-label').textContent =
+        `${converted} / ${total} bounded contexts converted`;
+      document.getElementById('progress-details').innerHTML =
+        `<p style="color:#475569;">Extracted: ` +
+        CONVERTED_CONTEXTS.map(s => `<code>${s}</code>`).join(', ') +
+        ` (Payment Processing bounded context)</p>`;
     }
 
     function renderMetrics(m) {

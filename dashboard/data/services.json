@@ -1,0 +1,175 @@
+[
+  {
+    "class_name": "AccountService",
+    "source_file": "main/java/com/acme/autofinance/service/AccountService.java",
+    "methods": [
+      {
+        "name": "getAccountDetails",
+        "parameters": "Long accountId"
+      },
+      {
+        "name": "getByAccountNumber",
+        "parameters": "String accountNumber"
+      },
+      {
+        "name": "updateAddress",
+        "parameters": "Long accountId, String newAddress"
+      },
+      {
+        "name": "calculatePayoffQuote",
+        "parameters": "Long accountId"
+      },
+      {
+        "name": "processEarlyTermination",
+        "parameters": "Long accountId"
+      },
+      {
+        "name": "activateAccount",
+        "parameters": "Long loanId"
+      },
+      {
+        "name": "closeAccount",
+        "parameters": "Long loanId"
+      },
+      {
+        "name": "getDelinquentAccounts",
+        "parameters": "int daysPastDue"
+      }
+    ],
+    "method_count": 8,
+    "line_count": 165,
+    "autowired_dependencies": 3
+  },
+  {
+    "class_name": "DealerService",
+    "source_file": "main/java/com/acme/autofinance/service/DealerService.java",
+    "methods": [
+      {
+        "name": "submitDealPackage",
+        "parameters": "DealPackage dealPackage"
+      },
+      {
+        "name": "getDealerSettlement",
+        "parameters": "Long dealerId"
+      },
+      {
+        "name": "getInventoryFinancing",
+        "parameters": "Long dealerId"
+      },
+      {
+        "name": "getAllDealers",
+        "parameters": ""
+      }
+    ],
+    "method_count": 4,
+    "line_count": 159,
+    "autowired_dependencies": 4
+  },
+  {
+    "class_name": "ReportService",
+    "source_file": "main/java/com/acme/autofinance/service/ReportService.java",
+    "methods": [
+      {
+        "name": "getPortfolioSummary",
+        "parameters": ""
+      },
+      {
+        "name": "getDelinquencyReport",
+        "parameters": ""
+      },
+      {
+        "name": "getDealerPerformanceReport",
+        "parameters": ""
+      }
+    ],
+    "method_count": 3,
+    "line_count": 125,
+    "autowired_dependencies": 1
+  },
+  {
+    "class_name": "LoanService",
+    "source_file": "main/java/com/acme/autofinance/service/LoanService.java",
+    "methods": [
+      {
+        "name": "createApplication",
+        "parameters": "LoanApplication application"
+      },
+      {
+        "name": "getApplication",
+        "parameters": "Long id"
+      },
+      {
+        "name": "getByApplicationNumber",
+        "parameters": "String applicationNumber"
+      },
+      {
+        "name": "getByStatus",
+        "parameters": "LoanStatus status"
+      },
+      {
+        "name": "updateTerms",
+        "parameters": "Long id, BigDecimal amount, BigDecimal rate, Integer termMonths"
+      },
+      {
+        "name": "fundLoan",
+        "parameters": "Long id"
+      },
+      {
+        "name": "calculateMonthlyPayment",
+        "parameters": "BigDecimal principal, BigDecimal annualRate, int termMonths"
+      },
+      {
+        "name": "getPortfolioSummary",
+        "parameters": ""
+      },
+      {
+        "name": "getDelinquencyReport",
+        "parameters": ""
+      },
+      {
+        "name": "runEndOfDayProcessing",
+        "parameters": ""
+      },
+      {
+        "name": "getAllApplications",
+        "parameters": ""
+      }
+    ],
+    "method_count": 11,
+    "line_count": 478,
+    "autowired_dependencies": 8
+  },
+  {
+    "class_name": "PaymentService",
+    "source_file": "main/java/com/acme/autofinance/service/PaymentService.java",
+    "methods": [
+      {
+        "name": "submitPayment",
+        "parameters": "Payment payment"
+      },
+      {
+        "name": "processAchPayment",
+        "parameters": "Payment payment"
+      },
+      {
+        "name": "assessLateFee",
+        "parameters": "Long loanId, int daysPastDue"
+      },
+      {
+        "name": "getPaymentHistory",
+        "parameters": "Long loanId"
+      },
+      {
+        "name": "processBatchPayments",
+        "parameters": "List<Payment> payments"
+      },
+      {
+        "name": "getPendingPayments",
+        "parameters": ""
+      }
+    ],
+    "method_count": 6,
+    "line_count": 240,
+    "autowired_dependencies": 4
+  }
+]
