@@ -19,6 +19,9 @@ jobs:
       - name: Compile Java
         run: mvn -B compile --no-transfer-progress
 
+      - name: Build & test payment-service microservice
+        run: mvn -B -f microservices/payment-service/pom.xml test --no-transfer-progress
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:

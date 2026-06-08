@@ -178,16 +178,59 @@
     async function loadData() {
       try {
         const res = await fetch('data/analysis.json');
-        if (!res.ok) return;
-        const data = await res.json();
-        renderMetrics(data.metrics);
-        renderEndpoints(data.endpoints);
-        renderCoupling(data.coupling_scores);
-        renderBoundaries(data.domain_boundaries);
-        renderEvents(data.event_catalog);
+        if (res.ok) {
+          const data = await res.json();
+          renderMetrics(data.metrics);
+          renderEndpoints(data.endpoints);
+          renderCoupling(data.coupling_scores);
+          renderBoundaries(data.domain_boundaries);
+          renderEvents(data.event_catalog);
+        }
       } catch (e) {
         console.log('No analysis data yet — dashboard in placeholder state');
+      } finally {
+        loadProgress();
       }
+    }
+
+    async function loadProgress() {
+      try {
+        const res = await fetch('data/progress.json');
+        if (!res.ok) return;
+        renderProgress(await res.json());
+      } catch (e) {
+        console.log('No modernization progress data yet');
+      }
+    }
+
+    function renderProgress(p) {
+      if (!p || !p.contexts) return;
+      const total = p.total_contexts || p.contexts.length;
+      const done = p.converted_count != null
+        ? p.converted_count
+        : p.contexts.filter(c => c.status === 'converted').length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-label').textContent =
+        `${done} / ${total} bounded contexts converted`;
+      document.getElementById('progress-details').innerHTML = p.contexts.map(c => {
+        const converted = c.status === 'converted';
+        const badgeClass = converted ? 'badge-low' : 'badge-medium';
+        const label = converted ? 'CONVERTED' : 'PENDING';
+        let extra = '';
+        if (converted) {
+          extra = `<div class="desc"><code>${c.location}</code> &middot; ${c.pattern}</div>` +
+            `<div style="margin-top:.35rem;">${(c.events || []).map(e =>
+              `<span class="tag">${e}</span>`).join('')}` +
+            (c.integration_tests ? `<span class="tag">${c.integration_tests} integration tests</span>` : '') +
+            `</div>`;
+        }
+        return `<div class="domain-card">` +
+          `<h4>${c.domain} <span class="badge ${badgeClass}">${label}</span></h4>` +
+          `<div>Proposed service: <code>${c.proposed_service}</code></div>` +
+          extra +
+          `</div>`;
+      }).join('');
     }
 
     function renderMetrics(m) {
