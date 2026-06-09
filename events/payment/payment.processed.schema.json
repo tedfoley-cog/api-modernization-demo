@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://acme.com/events/payment/payment.processed.schema.json",
+  "title": "PaymentProcessed",
+  "description": "Emitted when a payment finishes processing (e.g. ACH settlement). Replaces the monolith's synchronous account-balance and loan-payoff updates: downstream domains consume this to update their own state.",
+  "type": "object",
+  "required": ["eventId", "eventType", "occurredAt", "aggregateId", "paymentId", "loanId", "status"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "eventType": {
+      "type": "string",
+      "const": "payment.processed"
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "aggregateId": {
+      "type": "string",
+      "description": "Identifier of the aggregate (the payment id)."
+    },
+    "paymentId": {
+      "type": "integer"
+    },
+    "loanId": {
+      "type": "integer"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PENDING", "PROCESSING", "COMPLETED", "FAILED", "REVERSED", "NSF"],
+      "description": "Terminal status of the payment after processing."
+    },
+    "principalApplied": {
+      "type": "number",
+      "description": "Principal portion applied; the account domain uses this to reduce the balance."
+    },
+    "totalCompletedToDate": {
+      "type": "number",
+      "description": "Sum of completed payments for the loan; the loan domain uses this to decide payoff/closure."
+    }
+  },
+  "additionalProperties": false
+}

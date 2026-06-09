@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://acme.com/events/payment/payment.allocated.schema.json",
+  "title": "PaymentAllocated",
+  "description": "Emitted once a payment amount has been split into fees, interest and principal (allocation order: late fees -> interest -> principal).",
+  "type": "object",
+  "required": ["eventId", "eventType", "occurredAt", "aggregateId", "paymentId", "loanId", "feeAmount", "interestAmount", "principalAmount"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "eventType": {
+      "type": "string",
+      "const": "payment.allocated"
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "aggregateId": {
+      "type": "string",
+      "description": "Identifier of the aggregate (the payment id)."
+    },
+    "paymentId": {
+      "type": "integer"
+    },
+    "loanId": {
+      "type": "integer"
+    },
+    "feeAmount": {
+      "type": "number",
+      "description": "Portion of the payment applied to outstanding late fees."
+    },
+    "interestAmount": {
+      "type": "number",
+      "description": "Portion of the payment applied to accrued interest."
+    },
+    "principalAmount": {
+      "type": "number",
+      "description": "Portion of the payment applied to principal."
+    }
+  },
+  "additionalProperties": false
+}
