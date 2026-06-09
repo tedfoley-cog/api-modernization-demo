@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://acme.com/events/payment/payment.received.schema.json",
+  "title": "PaymentReceived",
+  "description": "Emitted when a payment is accepted into the payment service (status PENDING), before allocation or processing.",
+  "type": "object",
+  "required": ["eventId", "eventType", "occurredAt", "aggregateId", "paymentId", "loanId", "paymentAmount"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique identifier for this event instance."
+    },
+    "eventType": {
+      "type": "string",
+      "const": "payment.received"
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the event occurred."
+    },
+    "aggregateId": {
+      "type": "string",
+      "description": "Identifier of the aggregate (the payment id) the event pertains to."
+    },
+    "paymentId": {
+      "type": "integer",
+      "description": "Identifier of the payment within the payment service."
+    },
+    "loanId": {
+      "type": "integer",
+      "description": "Opaque identifier of the loan this payment is for (owned by the loan domain)."
+    },
+    "paymentAmount": {
+      "type": "number",
+      "description": "Total amount submitted."
+    },
+    "paymentMethod": {
+      "type": "string",
+      "enum": ["ACH", "EFT", "CHECK", "WIRE", "DEALER_REMITTANCE"]
+    },
+    "confirmationNumber": {
+      "type": "string",
+      "description": "Human-readable confirmation number assigned to the payment."
+    }
+  },
+  "additionalProperties": false
+}

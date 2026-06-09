@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://acme.com/events/payment/payment.late_fees_assessed.schema.json",
+  "title": "LateFeesAssessed",
+  "description": "Emitted when a late fee is assessed against a loan (flat $25 for <=30 days past due, otherwise 5% of the outstanding balance capped at $50).",
+  "type": "object",
+  "required": ["eventId", "eventType", "occurredAt", "aggregateId", "loanId", "lateFee", "daysPastDue"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "eventType": {
+      "type": "string",
+      "const": "payment.late_fees_assessed"
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "aggregateId": {
+      "type": "string",
+      "description": "Identifier of the aggregate (the loan id)."
+    },
+    "paymentId": {
+      "type": "integer",
+      "description": "Identifier of the fee record created in the payment service."
+    },
+    "loanId": {
+      "type": "integer"
+    },
+    "lateFee": {
+      "type": "number",
+      "description": "The assessed late fee amount."
+    },
+    "daysPastDue": {
+      "type": "integer",
+      "description": "Number of days the loan is past due, driving the fee schedule."
+    }
+  },
+  "additionalProperties": false
+}
