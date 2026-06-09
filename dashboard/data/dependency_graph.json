@@ -1,0 +1,322 @@
+{
+  "nodes": [
+    {
+      "id": "AutoFinanceApplication",
+      "type": "other",
+      "label": "AutoFinanceApplication"
+    },
+    {
+      "id": "AccountService",
+      "type": "service",
+      "label": "AccountService"
+    },
+    {
+      "id": "DealerService",
+      "type": "service",
+      "label": "DealerService"
+    },
+    {
+      "id": "ReportService",
+      "type": "service",
+      "label": "ReportService"
+    },
+    {
+      "id": "LoanService",
+      "type": "service",
+      "label": "LoanService"
+    },
+    {
+      "id": "PaymentService",
+      "type": "service",
+      "label": "PaymentService"
+    },
+    {
+      "id": "LoanController",
+      "type": "controller",
+      "label": "LoanController"
+    },
+    {
+      "id": "ReportController",
+      "type": "controller",
+      "label": "ReportController"
+    },
+    {
+      "id": "DealerController",
+      "type": "controller",
+      "label": "DealerController"
+    },
+    {
+      "id": "AccountController",
+      "type": "controller",
+      "label": "AccountController"
+    },
+    {
+      "id": "PaymentController",
+      "type": "controller",
+      "label": "PaymentController"
+    },
+    {
+      "id": "AppConfig",
+      "type": "other",
+      "label": "AppConfig"
+    },
+    {
+      "id": "AccountRepository",
+      "type": "repository",
+      "label": "AccountRepository"
+    },
+    {
+      "id": "DealPackageRepository",
+      "type": "repository",
+      "label": "DealPackageRepository"
+    },
+    {
+      "id": "LoanRepository",
+      "type": "repository",
+      "label": "LoanRepository"
+    },
+    {
+      "id": "PaymentRepository",
+      "type": "repository",
+      "label": "PaymentRepository"
+    },
+    {
+      "id": "DealerRepository",
+      "type": "repository",
+      "label": "DealerRepository"
+    },
+    {
+      "id": "Payment",
+      "type": "entity",
+      "label": "Payment"
+    },
+    {
+      "id": "CreditDecision",
+      "type": "other",
+      "label": "CreditDecision"
+    },
+    {
+      "id": "PaymentMethod",
+      "type": "other",
+      "label": "PaymentMethod"
+    },
+    {
+      "id": "Dealer",
+      "type": "entity",
+      "label": "Dealer"
+    },
+    {
+      "id": "AccountStatus",
+      "type": "other",
+      "label": "AccountStatus"
+    },
+    {
+      "id": "Account",
+      "type": "entity",
+      "label": "Account"
+    },
+    {
+      "id": "DealPackage",
+      "type": "entity",
+      "label": "DealPackage"
+    },
+    {
+      "id": "PaymentStatus",
+      "type": "other",
+      "label": "PaymentStatus"
+    },
+    {
+      "id": "LoanStatus",
+      "type": "other",
+      "label": "LoanStatus"
+    },
+    {
+      "id": "LoanApplication",
+      "type": "entity",
+      "label": "LoanApplication"
+    },
+    {
+      "id": "DealStatus",
+      "type": "other",
+      "label": "DealStatus"
+    }
+  ],
+  "edges": [
+    {
+      "source": "AccountService",
+      "target": "AccountRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "AccountService",
+      "target": "LoanRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "AccountService",
+      "target": "PaymentRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "AccountService",
+      "target": "Payment",
+      "type": "method_call",
+      "call_count": 4
+    },
+    {
+      "source": "AccountService",
+      "target": "Account",
+      "type": "method_call",
+      "call_count": 15
+    },
+    {
+      "source": "DealerService",
+      "target": "DealerRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "DealerService",
+      "target": "DealPackageRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "DealerService",
+      "target": "LoanRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "DealerService",
+      "target": "LoanService",
+      "type": "field_injection"
+    },
+    {
+      "source": "DealerService",
+      "target": "Dealer",
+      "type": "method_call",
+      "call_count": 11
+    },
+    {
+      "source": "DealerService",
+      "target": "DealPackage",
+      "type": "method_call",
+      "call_count": 12
+    },
+    {
+      "source": "LoanService",
+      "target": "LoanRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "LoanService",
+      "target": "PaymentRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "LoanService",
+      "target": "AccountRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "LoanService",
+      "target": "DealerRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "LoanService",
+      "target": "DealPackageRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "LoanService",
+      "target": "PaymentService",
+      "type": "field_injection"
+    },
+    {
+      "source": "LoanService",
+      "target": "AccountService",
+      "type": "field_injection"
+    },
+    {
+      "source": "LoanService",
+      "target": "Account",
+      "type": "method_call",
+      "call_count": 21
+    },
+    {
+      "source": "PaymentService",
+      "target": "PaymentRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "PaymentService",
+      "target": "LoanRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "PaymentService",
+      "target": "AccountRepository",
+      "type": "field_injection"
+    },
+    {
+      "source": "PaymentService",
+      "target": "AccountService",
+      "type": "field_injection"
+    },
+    {
+      "source": "PaymentService",
+      "target": "Payment",
+      "type": "method_call",
+      "call_count": 20
+    },
+    {
+      "source": "PaymentService",
+      "target": "Account",
+      "type": "method_call",
+      "call_count": 6
+    },
+    {
+      "source": "LoanController",
+      "target": "LoanService",
+      "type": "field_injection"
+    },
+    {
+      "source": "ReportController",
+      "target": "ReportService",
+      "type": "field_injection"
+    },
+    {
+      "source": "ReportController",
+      "target": "LoanService",
+      "type": "field_injection"
+    },
+    {
+      "source": "DealerController",
+      "target": "DealerService",
+      "type": "field_injection"
+    },
+    {
+      "source": "DealerController",
+      "target": "DealPackage",
+      "type": "method_call",
+      "call_count": 3
+    },
+    {
+      "source": "AccountController",
+      "target": "AccountService",
+      "type": "field_injection"
+    },
+    {
+      "source": "PaymentController",
+      "target": "PaymentService",
+      "type": "field_injection"
+    },
+    {
+      "source": "PaymentController",
+      "target": "Payment",
+      "type": "method_call",
+      "call_count": 3
+    }
+  ],
+  "node_count": 28,
+  "edge_count": 33
+}
