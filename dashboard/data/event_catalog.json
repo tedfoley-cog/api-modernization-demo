@@ -1,0 +1,257 @@
+[
+  {
+    "event_name": "LoanApplicationSubmitted",
+    "trigger": "New loan application created",
+    "current_implementation": "Synchronous method call in LoanService.createApplication()",
+    "producers": [
+      "loan-origination-service"
+    ],
+    "consumers": [
+      "credit-decisioning",
+      "dealer-integration-service"
+    ],
+    "payload_fields": [
+      "applicationId",
+      "applicationNumber",
+      "applicantName",
+      "requestedAmount",
+      "vehicleVin",
+      "dealerId"
+    ],
+    "domain": "loan-origination",
+    "bounded_context": "loan-origination-service"
+  },
+  {
+    "event_name": "CreditDecisionMade",
+    "trigger": "Credit check completed (approved or declined)",
+    "current_implementation": "Inline in LoanService.performCreditCheck() \u2014 synchronous, no event",
+    "producers": [
+      "loan-origination-service"
+    ],
+    "consumers": [
+      "account-servicing-service",
+      "dealer-integration-service",
+      "reporting-service"
+    ],
+    "payload_fields": [
+      "applicationId",
+      "decision",
+      "creditScore",
+      "riskTier",
+      "approvedAmount",
+      "offeredRate"
+    ],
+    "domain": "loan-origination",
+    "bounded_context": "loan-origination-service"
+  },
+  {
+    "event_name": "LoanFunded",
+    "trigger": "Loan moves to FUNDED status",
+    "current_implementation": "LoanService.fundLoan() synchronously updates account and deal package",
+    "producers": [
+      "loan-origination-service"
+    ],
+    "consumers": [
+      "account-servicing-service",
+      "dealer-integration-service",
+      "reporting-service"
+    ],
+    "payload_fields": [
+      "loanId",
+      "applicationNumber",
+      "fundingDate",
+      "approvedAmount",
+      "interestRate",
+      "termMonths"
+    ],
+    "domain": "loan-origination",
+    "bounded_context": "loan-origination-service"
+  },
+  {
+    "event_name": "PaymentReceived",
+    "trigger": "Payment submitted by borrower",
+    "current_implementation": "PaymentService.submitPayment() \u2014 synchronous, calls allocatePayment inline",
+    "producers": [
+      "payment-processing-service"
+    ],
+    "consumers": [
+      "account-servicing-service",
+      "reporting-service"
+    ],
+    "payload_fields": [
+      "paymentId",
+      "loanId",
+      "paymentAmount",
+      "paymentMethod",
+      "confirmationNumber"
+    ],
+    "domain": "payment-processing",
+    "bounded_context": "payment-processing-service"
+  },
+  {
+    "event_name": "PaymentAllocated",
+    "trigger": "Payment broken down into principal/interest/fees",
+    "current_implementation": "Inline in PaymentService.allocatePayment() \u2014 synchronous",
+    "producers": [
+      "payment-processing-service"
+    ],
+    "consumers": [
+      "account-servicing-service"
+    ],
+    "payload_fields": [
+      "paymentId",
+      "loanId",
+      "principalAmount",
+      "interestAmount",
+      "feeAmount"
+    ],
+    "domain": "payment-processing",
+    "bounded_context": "payment-processing-service"
+  },
+  {
+    "event_name": "PaymentProcessed",
+    "trigger": "ACH/EFT payment completed successfully",
+    "current_implementation": "PaymentService.processAchPayment() synchronously updates account balance and loan status",
+    "producers": [
+      "payment-processing-service"
+    ],
+    "consumers": [
+      "account-servicing-service",
+      "loan-origination-service",
+      "reporting-service"
+    ],
+    "payload_fields": [
+      "paymentId",
+      "loanId",
+      "processedDate",
+      "status",
+      "principalApplied",
+      "newBalance"
+    ],
+    "domain": "payment-processing",
+    "bounded_context": "payment-processing-service"
+  },
+  {
+    "event_name": "LateFeesAssessed",
+    "trigger": "Account past due, late fee charged",
+    "current_implementation": "PaymentService.assessLateFee() \u2014 called synchronously from LoanService.runEndOfDayProcessing()",
+    "producers": [
+      "payment-processing-service"
+    ],
+    "consumers": [
+      "account-servicing-service",
+      "reporting-service"
+    ],
+    "payload_fields": [
+      "loanId",
+      "feeAmount",
+      "daysPastDue",
+      "assessmentDate"
+    ],
+    "domain": "payment-processing",
+    "bounded_context": "payment-processing-service"
+  },
+  {
+    "event_name": "AccountCreated",
+    "trigger": "New account created after loan approval",
+    "current_implementation": "Inline in LoanService.createApplication() \u2014 wrong service creates the account",
+    "producers": [
+      "account-servicing-service"
+    ],
+    "consumers": [
+      "reporting-service"
+    ],
+    "payload_fields": [
+      "accountId",
+      "accountNumber",
+      "loanId",
+      "customerName",
+      "originalBalance"
+    ],
+    "domain": "account-servicing",
+    "bounded_context": "account-servicing-service"
+  },
+  {
+    "event_name": "AccountBalanceUpdated",
+    "trigger": "Balance changes after payment, adjustment, or payoff",
+    "current_implementation": "PaymentService.updateAccountBalance() \u2014 payment service directly mutates account state",
+    "producers": [
+      "account-servicing-service"
+    ],
+    "consumers": [
+      "reporting-service",
+      "loan-origination-service"
+    ],
+    "payload_fields": [
+      "accountId",
+      "previousBalance",
+      "newBalance",
+      "changeAmount",
+      "changeReason"
+    ],
+    "domain": "account-servicing",
+    "bounded_context": "account-servicing-service"
+  },
+  {
+    "event_name": "AccountDelinquent",
+    "trigger": "Account crosses delinquency threshold",
+    "current_implementation": "LoanService.runEndOfDayProcessing() \u2014 loan service manages account delinquency",
+    "producers": [
+      "account-servicing-service"
+    ],
+    "consumers": [
+      "payment-processing-service",
+      "reporting-service"
+    ],
+    "payload_fields": [
+      "accountId",
+      "loanId",
+      "daysPastDue",
+      "delinquencyBucket",
+      "currentBalance"
+    ],
+    "domain": "account-servicing",
+    "bounded_context": "account-servicing-service"
+  },
+  {
+    "event_name": "DealPackageSubmitted",
+    "trigger": "Dealer submits a deal package",
+    "current_implementation": "DealerService.submitDealPackage() synchronously creates loan application",
+    "producers": [
+      "dealer-integration-service"
+    ],
+    "consumers": [
+      "loan-origination-service"
+    ],
+    "payload_fields": [
+      "dealNumber",
+      "dealerId",
+      "vehicleVin",
+      "salePrice",
+      "downPayment",
+      "tradeInValue"
+    ],
+    "domain": "dealer-integration",
+    "bounded_context": "dealer-integration-service"
+  },
+  {
+    "event_name": "DealerSettlementCalculated",
+    "trigger": "Settlement amounts computed for dealer",
+    "current_implementation": "DealerService.getDealerSettlement() \u2014 computed on-demand, not event-driven",
+    "producers": [
+      "dealer-integration-service"
+    ],
+    "consumers": [
+      "reporting-service"
+    ],
+    "payload_fields": [
+      "dealerId",
+      "dealerCode",
+      "totalReserves",
+      "totalHoldbacks",
+      "netSettlement"
+    ],
+    "domain": "dealer-integration",
+    "bounded_context": "dealer-integration-service"
+  }
+]

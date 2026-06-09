@@ -1,0 +1,13 @@
+{
+  "total_java_files": 28,
+  "total_lines_of_code": 2237,
+  "total_service_loc": 1167,
+  "total_endpoints": 24,
+  "total_services": 5,
+  "avg_methods_per_service": 6.4,
+  "largest_service": {
+    "name": "LoanService",
+    "loc": 478
+  },
+  "total_autowired_injections": 20
+}

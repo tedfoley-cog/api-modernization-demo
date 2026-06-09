@@ -1,0 +1,146 @@
+[
+  {
+    "method": "POST",
+    "path": "/api/loans",
+    "controller": "LoanController",
+    "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/loans/{id}",
+    "controller": "LoanController",
+    "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/loans/number/{applicationNumber}",
+    "controller": "LoanController",
+    "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/loans",
+    "controller": "LoanController",
+    "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/loans/{id}/terms",
+    "controller": "LoanController",
+    "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+  },
+  {
+    "method": "POST",
+    "path": "/api/loans/{id}/fund",
+    "controller": "LoanController",
+    "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+  },
+  {
+    "method": "POST",
+    "path": "/api/loans/end-of-day",
+    "controller": "LoanController",
+    "source_file": "main/java/com/acme/autofinance/controller/LoanController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/portfolio",
+    "controller": "ReportController",
+    "source_file": "main/java/com/acme/autofinance/controller/ReportController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/delinquency",
+    "controller": "ReportController",
+    "source_file": "main/java/com/acme/autofinance/controller/ReportController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/reports/dealers",
+    "controller": "ReportController",
+    "source_file": "main/java/com/acme/autofinance/controller/ReportController.java"
+  },
+  {
+    "method": "POST",
+    "path": "/api/dealers/deals",
+    "controller": "DealerController",
+    "source_file": "main/java/com/acme/autofinance/controller/DealerController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dealers/{dealerId}/settlement",
+    "controller": "DealerController",
+    "source_file": "main/java/com/acme/autofinance/controller/DealerController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dealers/{dealerId}/inventory-financing",
+    "controller": "DealerController",
+    "source_file": "main/java/com/acme/autofinance/controller/DealerController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dealers",
+    "controller": "DealerController",
+    "source_file": "main/java/com/acme/autofinance/controller/DealerController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/accounts/{id}",
+    "controller": "AccountController",
+    "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/accounts/number/{accountNumber}",
+    "controller": "AccountController",
+    "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/accounts/{id}/address",
+    "controller": "AccountController",
+    "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/accounts/{id}/payoff",
+    "controller": "AccountController",
+    "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+  },
+  {
+    "method": "POST",
+    "path": "/api/accounts/{id}/early-termination",
+    "controller": "AccountController",
+    "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/accounts/delinquent",
+    "controller": "AccountController",
+    "source_file": "main/java/com/acme/autofinance/controller/AccountController.java"
+  },
+  {
+    "method": "POST",
+    "path": "/api/payments",
+    "controller": "PaymentController",
+    "source_file": "main/java/com/acme/autofinance/controller/PaymentController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/payments/loan/{loanId}",
+    "controller": "PaymentController",
+    "source_file": "main/java/com/acme/autofinance/controller/PaymentController.java"
+  },
+  {
+    "method": "POST",
+    "path": "/api/payments/batch",
+    "controller": "PaymentController",
+    "source_file": "main/java/com/acme/autofinance/controller/PaymentController.java"
+  },
+  {
+    "method": "GET",
+    "path": "/api/payments/pending",
+    "controller": "PaymentController",
+    "source_file": "main/java/com/acme/autofinance/controller/PaymentController.java"
+  }
+]

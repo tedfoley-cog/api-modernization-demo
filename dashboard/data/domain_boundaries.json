@@ -1,0 +1,246 @@
+[
+  {
+    "domain": "loan-origination",
+    "description": "Loan application, credit decisioning, and funding workflow",
+    "proposed_service": "loan-origination-service",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/loans",
+        "controller": "LoanController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/loans/{id}",
+        "controller": "LoanController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/loans/number/{applicationNumber}",
+        "controller": "LoanController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/loans",
+        "controller": "LoanController"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/loans/{id}/terms",
+        "controller": "LoanController"
+      },
+      {
+        "method": "POST",
+        "path": "/api/loans/{id}/fund",
+        "controller": "LoanController"
+      },
+      {
+        "method": "POST",
+        "path": "/api/loans/end-of-day",
+        "controller": "LoanController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/payments/loan/{loanId}",
+        "controller": "PaymentController"
+      }
+    ],
+    "endpoint_count": 8,
+    "services": [
+      {
+        "class_name": "LoanService",
+        "method_count": 11,
+        "line_count": 478
+      }
+    ],
+    "entities": [
+      {
+        "class_name": "LoanApplication",
+        "table_name": "loan_applications"
+      }
+    ],
+    "cross_boundary_dependencies": 11,
+    "extraction_complexity": "HIGH"
+  },
+  {
+    "domain": "payment-processing",
+    "description": "Payment submission, allocation, ACH processing, and late fee assessment",
+    "proposed_service": "payment-processing-service",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/payments",
+        "controller": "PaymentController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/payments/loan/{loanId}",
+        "controller": "PaymentController"
+      },
+      {
+        "method": "POST",
+        "path": "/api/payments/batch",
+        "controller": "PaymentController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/payments/pending",
+        "controller": "PaymentController"
+      }
+    ],
+    "endpoint_count": 4,
+    "services": [
+      {
+        "class_name": "PaymentService",
+        "method_count": 6,
+        "line_count": 240
+      }
+    ],
+    "entities": [
+      {
+        "class_name": "Payment",
+        "table_name": "payments"
+      }
+    ],
+    "cross_boundary_dependencies": 8,
+    "extraction_complexity": "MEDIUM"
+  },
+  {
+    "domain": "account-servicing",
+    "description": "Account management, payoff quotes, address updates, early termination",
+    "proposed_service": "account-servicing-service",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/accounts/{id}",
+        "controller": "AccountController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/accounts/number/{accountNumber}",
+        "controller": "AccountController"
+      },
+      {
+        "method": "PUT",
+        "path": "/api/accounts/{id}/address",
+        "controller": "AccountController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/accounts/{id}/payoff",
+        "controller": "AccountController"
+      },
+      {
+        "method": "POST",
+        "path": "/api/accounts/{id}/early-termination",
+        "controller": "AccountController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/accounts/delinquent",
+        "controller": "AccountController"
+      }
+    ],
+    "endpoint_count": 6,
+    "services": [
+      {
+        "class_name": "AccountService",
+        "method_count": 8,
+        "line_count": 165
+      }
+    ],
+    "entities": [
+      {
+        "class_name": "Account",
+        "table_name": "accounts"
+      }
+    ],
+    "cross_boundary_dependencies": 8,
+    "extraction_complexity": "MEDIUM"
+  },
+  {
+    "domain": "dealer-integration",
+    "description": "Dealer deal submission, settlement, reserve/holdback, inventory financing",
+    "proposed_service": "dealer-integration-service",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/reports/dealers",
+        "controller": "ReportController"
+      },
+      {
+        "method": "POST",
+        "path": "/api/dealers/deals",
+        "controller": "DealerController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dealers/{dealerId}/settlement",
+        "controller": "DealerController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dealers/{dealerId}/inventory-financing",
+        "controller": "DealerController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dealers",
+        "controller": "DealerController"
+      }
+    ],
+    "endpoint_count": 5,
+    "services": [
+      {
+        "class_name": "DealerService",
+        "method_count": 4,
+        "line_count": 159
+      }
+    ],
+    "entities": [
+      {
+        "class_name": "Dealer",
+        "table_name": "dealers"
+      },
+      {
+        "class_name": "DealPackage",
+        "table_name": "deal_packages"
+      }
+    ],
+    "cross_boundary_dependencies": 7,
+    "extraction_complexity": "MEDIUM"
+  },
+  {
+    "domain": "reporting",
+    "description": "Portfolio summary, delinquency reporting, dealer performance, regulatory",
+    "proposed_service": "reporting-service",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/reports/portfolio",
+        "controller": "ReportController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/reports/delinquency",
+        "controller": "ReportController"
+      },
+      {
+        "method": "GET",
+        "path": "/api/reports/dealers",
+        "controller": "ReportController"
+      }
+    ],
+    "endpoint_count": 3,
+    "services": [
+      {
+        "class_name": "ReportService",
+        "method_count": 3,
+        "line_count": 125
+      }
+    ],
+    "entities": [],
+    "cross_boundary_dependencies": 1,
+    "extraction_complexity": "LOW"
+  }
+]

@@ -185,6 +185,7 @@
         renderCoupling(data.coupling_scores);
         renderBoundaries(data.domain_boundaries);
         renderEvents(data.event_catalog);
+        renderProgress(data.domain_boundaries);
       } catch (e) {
         console.log('No analysis data yet — dashboard in placeholder state');
       }
@@ -319,6 +320,24 @@
         `<span>${ev.consumers.join(', ')}</span>` +
         `</div></div>`
       ).join('');
+    }
+
+    function renderProgress(boundaries) {
+      if (!boundaries || !boundaries.length) return;
+      const total = boundaries.length;
+      const converted = boundaries.filter(b => b.converted).length;
+      document.getElementById('progress-fill').style.width =
+        Math.round((converted / total) * 100) + '%';
+      document.getElementById('progress-label').textContent =
+        `${converted} / ${total} bounded contexts converted`;
+      document.getElementById('progress-details').innerHTML = boundaries.map(b => {
+        const done = !!b.converted;
+        const badgeClass = done ? 'badge-low' : 'badge-medium';
+        return `<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;">` +
+          `<span class="badge ${badgeClass}">${done ? 'Converted' : 'Pending'}</span>` +
+          `<code>${b.proposed_service}</code>` +
+          `<span style="color:#94a3b8;font-size:.8rem;">(${b.domain})</span></div>`;
+      }).join('');
     }
 
     loadData();
