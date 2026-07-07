@@ -16,8 +16,13 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Compile Java
+      - name: Compile Monolith
         run: mvn -B compile --no-transfer-progress
+
+      - name: Build & Test Payment Microservice
+        run: |
+          cd microservices/payment-service
+          mvn -B verify --no-transfer-progress
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
