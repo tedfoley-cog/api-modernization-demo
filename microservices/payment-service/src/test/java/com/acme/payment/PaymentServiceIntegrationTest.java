@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -304,7 +305,7 @@ class PaymentServiceIntegrationTest {
         p2.setPaymentMethod(PaymentMethod.CHECK);
 
         Map<String, Object> results = commandService.processBatchPayments(
-                List.of(p1, p2), new BigDecimal("5000.00"), new BigDecimal("5.49"));
+                Arrays.asList(p1, p2), new BigDecimal("5000.00"), new BigDecimal("5.49"));
 
         assertEquals(2, results.get("totalSubmitted"));
         assertEquals(2, results.get("processed"));

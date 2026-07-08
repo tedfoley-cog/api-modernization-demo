@@ -2,6 +2,7 @@ package com.acme.autofinance.service;
 
 import com.acme.autofinance.event.LateFeeAssessedEvent;
 import com.acme.autofinance.event.PaymentCompletedEvent;
+import com.acme.autofinance.event.PaymentFailedEvent;
 import com.acme.autofinance.event.PaymentReceivedEvent;
 import com.acme.autofinance.model.LoanApplication;
 import com.acme.autofinance.model.Payment;
@@ -148,6 +149,14 @@ public class PaymentService {
         if (payment.getAchRoutingNumber() == null || payment.getAchRoutingNumber().length() != 9) {
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
+
+            // Publish PaymentFailed event so downstream consumers learn about the failure
+            PaymentFailedEvent failedEvent = new PaymentFailedEvent(
+                    payment.getLoanId(), payment.getId(),
+                    "Invalid ACH routing number", payment.getConfirmationNumber());
+            eventPublisher.publishEvent(failedEvent);
+            log.info("Published PaymentFailedEvent: loanId={}, confirmation={}, reason={}",
+                    payment.getLoanId(), payment.getConfirmationNumber(), "Invalid ACH routing number");
             return;
         }
 

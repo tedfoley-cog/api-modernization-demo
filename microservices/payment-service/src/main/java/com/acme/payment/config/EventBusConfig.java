@@ -48,14 +48,18 @@ public class EventBusConfig {
         }
 
         public List<PaymentEvent> getAll() {
-            return Collections.unmodifiableList(events);
+            synchronized (events) {
+                return Collections.unmodifiableList(new ArrayList<>(events));
+            }
         }
 
         public List<PaymentEvent> getByLoanId(Long loanId) {
             List<PaymentEvent> result = new ArrayList<>();
-            for (PaymentEvent event : events) {
-                if (event.getLoanId().equals(loanId)) {
-                    result.add(event);
+            synchronized (events) {
+                for (PaymentEvent event : events) {
+                    if (event.getLoanId().equals(loanId)) {
+                        result.add(event);
+                    }
                 }
             }
             return result;
