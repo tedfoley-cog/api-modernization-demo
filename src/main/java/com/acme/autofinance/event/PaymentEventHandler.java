@@ -19,8 +19,9 @@ import java.util.Optional;
  * Monolith-side event handler: reacts to payment domain events.
  * Replaces the synchronous cross-domain calls that were previously inline.
  *
- * In the microservice architecture, Account Service and Loan Service would
- * each have their own event handlers consuming from Kafka topics.
+ * During the strangler phase, the monolith uses Spring's default synchronous
+ * event dispatch so these updates remain in the payment transaction. Production
+ * services consume the events from Kafka and coordinate failures through a saga.
  */
 @Component
 public class PaymentEventHandler {

@@ -13,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,15 +39,19 @@ public class PaymentCommandService {
     private final PaymentCalculationService calculationService;
     private final ApplicationEventPublisher eventPublisher;
     private final EventBusConfig.EventStore eventStore;
+    private final TransactionTemplate batchTransactionTemplate;
 
     public PaymentCommandService(PaymentRepository paymentRepository,
                                  PaymentCalculationService calculationService,
                                  ApplicationEventPublisher eventPublisher,
-                                 EventBusConfig.EventStore eventStore) {
+                                 EventBusConfig.EventStore eventStore,
+                                 PlatformTransactionManager transactionManager) {
         this.paymentRepository = paymentRepository;
         this.calculationService = calculationService;
         this.eventPublisher = eventPublisher;
         this.eventStore = eventStore;
+        this.batchTransactionTemplate = new TransactionTemplate(transactionManager);
+        this.batchTransactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
 
     @Transactional
@@ -70,7 +77,7 @@ public class PaymentCommandService {
         payment.setInterestAmount(allocation.getInterestAmount());
         payment.setPrincipalAmount(allocation.getPrincipalAmount());
 
-        Payment saved = paymentRepository.save(payment);
+        Payment saved = paymentRepository.saveAndFlush(payment);
 
         // Publish PaymentReceived event
         PaymentReceived event = new PaymentReceived(
@@ -126,7 +133,6 @@ public class PaymentCommandService {
                 payment.getLoanId(), totalPaid);
     }
 
-    @Transactional
     public Map<String, Object> processBatchPayments(List<Payment> payments,
                                                      BigDecimal defaultBalance,
                                                      BigDecimal defaultRate) {
@@ -136,7 +142,10 @@ public class PaymentCommandService {
 
         for (Payment payment : payments) {
             try {
-                submitPayment(payment, defaultBalance, defaultRate);
+                batchTransactionTemplate.execute(status -> {
+                    submitPayment(payment, defaultBalance, defaultRate);
+                    return null;
+                });
                 processed++;
             } catch (Exception e) {
                 log.error("Batch payment failed for loanId={}: {}", payment.getLoanId(), e.getMessage());

@@ -15,7 +15,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByLoanIdAndStatus(Long loanId, PaymentStatus status);
 
-    @Query(value = "SELECT SUM(payment_amount) FROM payments WHERE loan_id = ?1 AND status = 'COMPLETED'",
+    @Query(value = "SELECT COALESCE(SUM(payment_amount), 0) FROM payments WHERE loan_id = ?1 AND status = 'COMPLETED'",
            nativeQuery = true)
     java.math.BigDecimal sumCompletedPayments(Long loanId);
 

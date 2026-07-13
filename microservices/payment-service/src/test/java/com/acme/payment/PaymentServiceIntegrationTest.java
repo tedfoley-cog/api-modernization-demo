@@ -312,6 +312,26 @@ class PaymentServiceIntegrationTest {
         assertEquals(0, results.get("failed"));
     }
 
+    @Test
+    void processBatchPayments_isolatesFailedPaymentTransaction() {
+        Payment invalid = new Payment();
+        invalid.setPaymentAmount(new BigDecimal("100.00"));
+        invalid.setPaymentMethod(PaymentMethod.CHECK);
+
+        Payment valid = new Payment();
+        valid.setLoanId(990L);
+        valid.setPaymentAmount(new BigDecimal("200.00"));
+        valid.setPaymentMethod(PaymentMethod.CHECK);
+
+        Map<String, Object> results = commandService.processBatchPayments(
+                Arrays.asList(invalid, valid), new BigDecimal("5000.00"), new BigDecimal("5.49"));
+
+        assertEquals(2, results.get("totalSubmitted"));
+        assertEquals(1, results.get("processed"));
+        assertEquals(1, results.get("failed"));
+        assertEquals(1, paymentRepository.findByLoanId(990L).size());
+    }
+
     // ========================================================================
     // Event Store Tests
     // ========================================================================
