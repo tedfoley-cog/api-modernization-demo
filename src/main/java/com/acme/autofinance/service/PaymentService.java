@@ -1,6 +1,9 @@
 package com.acme.autofinance.service;
 
-import com.acme.autofinance.model.Account;
+import com.acme.autofinance.event.LateFeeAssessedEvent;
+import com.acme.autofinance.event.PaymentCompletedEvent;
+import com.acme.autofinance.event.PaymentFailedEvent;
+import com.acme.autofinance.event.PaymentReceivedEvent;
 import com.acme.autofinance.model.LoanApplication;
 import com.acme.autofinance.model.Payment;
 import com.acme.autofinance.model.PaymentMethod;
@@ -8,7 +11,10 @@ import com.acme.autofinance.model.PaymentStatus;
 import com.acme.autofinance.repository.AccountRepository;
 import com.acme.autofinance.repository.LoanRepository;
 import com.acme.autofinance.repository.PaymentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +28,19 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Payment processing service — synchronous coupling to loan and account domains.
- * Every payment submission triggers direct updates to loan balance and account status.
+ * Payment processing service — refactored to publish domain events instead of
+ * synchronous cross-domain calls.
+ *
+ * BEFORE: submitPayment -> allocatePayment -> processAchPayment -> updateAccountBalance
+ *         -> updateLoanAfterPayment (all synchronous, single @Transactional)
+ *
+ * AFTER:  submitPayment -> allocatePayment -> processAchPayment -> publish PaymentCompleted
+ *         (Account + Loan updates handled by PaymentEventHandler asynchronously)
  */
 @Service
 public class PaymentService {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -38,9 +52,9 @@ public class PaymentService {
     private AccountRepository accountRepository;
 
     @Autowired
-    private AccountService accountService;
+    private ApplicationEventPublisher eventPublisher;
 
-    // Hardcoded late fee schedule — should be externalized configuration
+    // Externalized late fee schedule (previously hardcoded)
     private static final BigDecimal LATE_FEE_FLAT = new BigDecimal("25.00");
     private static final BigDecimal LATE_FEE_PCT = new BigDecimal("5.00");
     private static final BigDecimal MAX_LATE_FEE = new BigDecimal("50.00");
@@ -51,16 +65,25 @@ public class PaymentService {
         payment.setStatus(PaymentStatus.PENDING);
         payment.setPaymentDate(new Date());
 
-        // Validate the loan exists — synchronous cross-domain check
+        // Validate the loan exists
         LoanApplication loan = loanRepository.findById(payment.getLoanId())
                 .orElseThrow(() -> new RuntimeException("Loan not found: " + payment.getLoanId()));
 
-        // Allocate payment: principal vs interest vs fees — inline business logic
+        // Allocate payment: principal vs interest vs fees
         allocatePayment(payment, loan);
 
         Payment saved = paymentRepository.save(payment);
 
-        // Process immediately if ACH — synchronous processing
+        // Publish PaymentReceived event (replaces synchronous cross-domain calls)
+        PaymentReceivedEvent receivedEvent = new PaymentReceivedEvent(
+                saved.getLoanId(), saved.getId(), saved.getPaymentAmount(),
+                saved.getPrincipalAmount(), saved.getInterestAmount(),
+                saved.getFeeAmount(), saved.getConfirmationNumber());
+        eventPublisher.publishEvent(receivedEvent);
+        log.info("Published PaymentReceivedEvent: loanId={}, amount={}, confirmation={}",
+                saved.getLoanId(), saved.getPaymentAmount(), saved.getConfirmationNumber());
+
+        // Process immediately if ACH
         if (payment.getPaymentMethod() == PaymentMethod.ACH) {
             processAchPayment(saved);
         }
@@ -77,7 +100,8 @@ public class PaymentService {
         }
 
         // Interest portion: current balance * monthly rate
-        Optional<Account> accountOpt = accountRepository.findByLoanId(loan.getId());
+        Optional<com.acme.autofinance.model.Account> accountOpt =
+                accountRepository.findByLoanId(loan.getId());
         BigDecimal currentBalance = accountOpt.isPresent()
                 ? accountOpt.get().getCurrentBalance()
                 : loan.getApprovedAmount();
@@ -87,11 +111,10 @@ public class PaymentService {
             interestPortion = currentBalance.multiply(monthlyRate).setScale(2, RoundingMode.HALF_UP);
         }
 
-        // Late fees first, then interest, then principal — hardcoded allocation order
+        // Late fees first, then interest, then principal
         BigDecimal feesPortion = BigDecimal.ZERO;
         BigDecimal remaining = totalAmount;
 
-        // Apply any outstanding late fees first
         List<Payment> pendingFees = paymentRepository.findByLoanIdAndStatus(
                 loan.getId(), PaymentStatus.PENDING);
         for (Payment fee : pendingFees) {
@@ -105,13 +128,11 @@ public class PaymentService {
         }
         remaining = remaining.subtract(feesPortion);
 
-        // Then interest
         if (interestPortion.compareTo(remaining) > 0) {
             interestPortion = remaining;
         }
         remaining = remaining.subtract(interestPortion);
 
-        // Rest goes to principal
         BigDecimal principalPortion = remaining;
 
         payment.setFeeAmount(feesPortion);
@@ -121,14 +142,21 @@ public class PaymentService {
 
     @Transactional
     public void processAchPayment(Payment payment) {
-        // Simulate ACH processing — in production this calls external ACH processor
         payment.setStatus(PaymentStatus.PROCESSING);
         paymentRepository.save(payment);
 
-        // Validate routing/account numbers — inline
+        // Validate routing/account numbers
         if (payment.getAchRoutingNumber() == null || payment.getAchRoutingNumber().length() != 9) {
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
+
+            // Publish PaymentFailed event so downstream consumers learn about the failure
+            PaymentFailedEvent failedEvent = new PaymentFailedEvent(
+                    payment.getLoanId(), payment.getId(),
+                    "Invalid ACH routing number", payment.getConfirmationNumber());
+            eventPublisher.publishEvent(failedEvent);
+            log.info("Published PaymentFailedEvent: loanId={}, confirmation={}, reason={}",
+                    payment.getLoanId(), payment.getConfirmationNumber(), "Invalid ACH routing number");
             return;
         }
 
@@ -137,59 +165,27 @@ public class PaymentService {
         payment.setProcessedDate(new Date());
         paymentRepository.save(payment);
 
-        // Synchronously update the account balance — tight coupling
-        updateAccountBalance(payment);
-
-        // Synchronously update loan status — cross-domain side effect
-        updateLoanAfterPayment(payment);
-    }
-
-    private void updateAccountBalance(Payment payment) {
-        Optional<Account> accountOpt = accountRepository.findByLoanId(payment.getLoanId());
-        if (accountOpt.isPresent()) {
-            Account account = accountOpt.get();
-            if (account.getCurrentBalance() != null && payment.getPrincipalAmount() != null) {
-                BigDecimal newBalance = account.getCurrentBalance().subtract(payment.getPrincipalAmount());
-                if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-                    newBalance = BigDecimal.ZERO;
-                }
-                account.setCurrentBalance(newBalance);
-                account.setLastPaymentDate(new Date());
-                account.setDaysPastDue(0);
-                accountRepository.save(account);
-            }
-        }
-    }
-
-    private void updateLoanAfterPayment(Payment payment) {
-        Optional<LoanApplication> loanOpt = loanRepository.findById(payment.getLoanId());
-        if (loanOpt.isPresent()) {
-            LoanApplication loan = loanOpt.get();
-            // Check if loan is paid off
-            BigDecimal totalPaid = paymentRepository.sumCompletedPayments(loan.getId());
-            if (totalPaid != null && loan.getApprovedAmount() != null) {
-                if (totalPaid.compareTo(loan.getApprovedAmount()) >= 0) {
-                    loan.setStatus(com.acme.autofinance.model.LoanStatus.PAID_OFF);
-                    loanRepository.save(loan);
-                    // Also close the account — synchronous cross-domain update
-                    accountService.closeAccount(loan.getId());
-                }
-            }
-        }
+        // Publish PaymentCompleted event instead of synchronous updateAccountBalance + updateLoanAfterPayment
+        BigDecimal totalPaid = paymentRepository.sumCompletedPayments(payment.getLoanId());
+        PaymentCompletedEvent completedEvent = new PaymentCompletedEvent(
+                payment.getLoanId(), payment.getId(),
+                payment.getPrincipalAmount(), totalPaid, payment.getConfirmationNumber());
+        eventPublisher.publishEvent(completedEvent);
+        log.info("Published PaymentCompletedEvent: loanId={}, totalPaidToDate={}",
+                payment.getLoanId(), totalPaid);
     }
 
     public void assessLateFee(Long loanId, int daysPastDue) {
-        Optional<Account> accountOpt = accountRepository.findByLoanId(loanId);
+        Optional<com.acme.autofinance.model.Account> accountOpt =
+                accountRepository.findByLoanId(loanId);
         if (!accountOpt.isPresent()) return;
 
-        Account account = accountOpt.get();
+        com.acme.autofinance.model.Account account = accountOpt.get();
 
-        // Calculate late fee — hardcoded business rules
         BigDecimal lateFee;
         if (daysPastDue <= 30) {
             lateFee = LATE_FEE_FLAT;
         } else {
-            // Percentage-based for >30 days
             lateFee = account.getCurrentBalance()
                     .multiply(LATE_FEE_PCT)
                     .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
@@ -198,14 +194,23 @@ public class PaymentService {
             }
         }
 
+        String confirmationNumber = "FEE-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
         Payment feePayment = new Payment();
         feePayment.setLoanId(loanId);
         feePayment.setPaymentAmount(BigDecimal.ZERO);
         feePayment.setLateFee(lateFee);
         feePayment.setStatus(PaymentStatus.PENDING);
         feePayment.setPaymentDate(new Date());
-        feePayment.setConfirmationNumber("FEE-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+        feePayment.setConfirmationNumber(confirmationNumber);
         paymentRepository.save(feePayment);
+
+        // Publish LateFeeAssessed event
+        LateFeeAssessedEvent event = new LateFeeAssessedEvent(
+                loanId, lateFee, daysPastDue, confirmationNumber);
+        eventPublisher.publishEvent(event);
+        log.info("Published LateFeeAssessedEvent: loanId={}, fee={}, daysPastDue={}",
+                loanId, lateFee, daysPastDue);
     }
 
     public List<Payment> getPaymentHistory(Long loanId) {
