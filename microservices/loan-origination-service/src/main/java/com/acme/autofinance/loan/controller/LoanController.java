@@ -1,9 +1,8 @@
-package com.acme.autofinance.controller;
+package com.acme.autofinance.loan.controller;
 
-import com.acme.autofinance.model.LoanApplication;
-import com.acme.autofinance.model.LoanStatus;
-import com.acme.autofinance.service.LoanService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.acme.autofinance.loan.domain.LoanApplication;
+import com.acme.autofinance.loan.domain.LoanStatus;
+import com.acme.autofinance.loan.service.LoanService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,23 +16,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * REST API for the loan-origination bounded context. Preserves the loan-owned
+ * endpoints from the legacy monolith controller. The cross-domain
+ * {@code POST /api/loans/end-of-day} batch endpoint is intentionally not carried
+ * over — end-of-day account processing belongs to account servicing, not loan
+ * origination.
+ */
 @RestController
 @RequestMapping("/api/loans")
 public class LoanController {
 
-    @Autowired
-    private LoanService loanService;
+    private final LoanService loanService;
+
+    public LoanController(LoanService loanService) {
+        this.loanService = loanService;
+    }
 
     @PostMapping
     public ResponseEntity<LoanApplication> createApplication(@RequestBody LoanApplication application) {
-        // Controller does validation inline — should be in a validator or service
         if (application.getApplicantName() == null || application.getApplicantName().trim().isEmpty()) {
-            throw new RuntimeException("Applicant name is required");
+            throw new IllegalArgumentException("Applicant name is required");
         }
-        if (application.getRequestedAmount() == null || application.getRequestedAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Requested amount must be positive");
+        if (application.getRequestedAmount() == null
+                || application.getRequestedAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Requested amount must be positive");
         }
         LoanApplication created = loanService.createApplication(application);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -70,10 +78,5 @@ public class LoanController {
     @PostMapping("/{id}/fund")
     public ResponseEntity<LoanApplication> fundLoan(@PathVariable Long id) {
         return ResponseEntity.ok(loanService.fundLoan(id));
-    }
-
-    @PostMapping("/end-of-day")
-    public ResponseEntity<Map<String, Object>> endOfDayProcessing() {
-        return ResponseEntity.ok(loanService.runEndOfDayProcessing());
     }
 }
