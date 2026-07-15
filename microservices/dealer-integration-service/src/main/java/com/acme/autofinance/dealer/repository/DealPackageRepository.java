@@ -1,7 +1,7 @@
-package com.acme.autofinance.repository;
+package com.acme.autofinance.dealer.repository;
 
-import com.acme.autofinance.model.DealPackage;
-import com.acme.autofinance.model.DealStatus;
+import com.acme.autofinance.dealer.domain.DealPackage;
+import com.acme.autofinance.dealer.domain.DealStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +16,6 @@ public interface DealPackageRepository extends JpaRepository<DealPackage, Long> 
     List<DealPackage> findByDealerId(Long dealerId);
 
     List<DealPackage> findByStatus(DealStatus status);
+
+    List<DealPackage> findByVehicleVin(String vehicleVin);
 }

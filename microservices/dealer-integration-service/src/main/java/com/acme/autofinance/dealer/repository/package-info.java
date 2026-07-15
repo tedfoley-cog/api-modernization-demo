@@ -1,5 +1,5 @@
 /**
- * Repository layer for the dealer-integration-service bounded context. Intentionally empty scaffold;
- * domain types are added by later extraction work.
+ * Repository layer for the dealer-integration-service bounded context: dealer/deal
+ * aggregates, the local deal/loan-status projection, and the idempotency inbox.
  */
 package com.acme.autofinance.dealer.repository;

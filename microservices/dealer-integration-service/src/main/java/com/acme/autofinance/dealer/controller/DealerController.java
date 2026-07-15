@@ -1,9 +1,8 @@
-package com.acme.autofinance.controller;
+package com.acme.autofinance.dealer.controller;
 
-import com.acme.autofinance.model.DealPackage;
-import com.acme.autofinance.model.Dealer;
-import com.acme.autofinance.service.DealerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.acme.autofinance.dealer.domain.DealPackage;
+import com.acme.autofinance.dealer.domain.Dealer;
+import com.acme.autofinance.dealer.service.DealerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,23 +15,30 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST API for the dealer-integration bounded context. Endpoint paths and response
+ * shapes are preserved from the legacy monolith controller.
+ */
 @RestController
 @RequestMapping("/api/dealers")
 public class DealerController {
 
-    @Autowired
-    private DealerService dealerService;
+    private final DealerService dealerService;
+
+    public DealerController(DealerService dealerService) {
+        this.dealerService = dealerService;
+    }
 
     @PostMapping("/deals")
     public ResponseEntity<DealPackage> submitDealPackage(@RequestBody DealPackage dealPackage) {
-        // Inline validation — mixed concerns
         if (dealPackage.getDealerId() == null) {
-            throw new RuntimeException("Dealer ID is required");
+            throw new IllegalArgumentException("Dealer ID is required");
         }
         if (dealPackage.getVehicleVin() == null || dealPackage.getVehicleVin().trim().isEmpty()) {
-            throw new RuntimeException("Vehicle VIN is required");
+            throw new IllegalArgumentException("Vehicle VIN is required");
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(dealerService.submitDealPackage(dealPackage));
+        DealPackage result = dealerService.submitDealPackage(dealPackage);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/{dealerId}/settlement")

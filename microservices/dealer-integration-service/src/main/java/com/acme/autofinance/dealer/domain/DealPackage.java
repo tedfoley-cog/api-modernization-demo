@@ -1,4 +1,4 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.dealer.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +13,11 @@ import javax.persistence.TemporalType;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * Deal package aggregate owned by the dealer-integration context. The {@code loanId}
+ * is a plain correlation column populated asynchronously from loan events; this
+ * context holds no loan entity and never reads the loan-origination database.
+ */
 @Entity
 @Table(name = "deal_packages")
 public class DealPackage {
