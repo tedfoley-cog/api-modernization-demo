@@ -19,8 +19,7 @@
     <packaging>pom</packaging>
 
     <name>Auto Finance Platform (Parent Aggregator)</name>
-    <description>Aggregator/parent POM for the event-driven decomposition of the auto finance monolith.
-        The legacy monolith source tree under ./src is preserved untouched for later domain extraction.</description>
+    <description>Aggregator/parent POM for the decomposed event-driven auto finance platform.</description>
 
     <properties>
         <java.version>1.8</java.version>
