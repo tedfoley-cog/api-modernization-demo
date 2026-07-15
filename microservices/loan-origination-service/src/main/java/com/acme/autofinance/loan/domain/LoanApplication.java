@@ -1,4 +1,4 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.loan.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +13,12 @@ import javax.persistence.TemporalType;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * Loan application aggregate for the loan-origination bounded context. Owns only
+ * loan-application, credit-decision, terms, and funding state. Account, payment,
+ * and dealer facts are no longer stored here — they live in their own contexts
+ * and arrive/depart as domain events.
+ */
 @Entity
 @Table(name = "loan_applications")
 public class LoanApplication {
@@ -81,7 +87,6 @@ public class LoanApplication {
 
     public LoanApplication() {}
 
-    // Getters and setters — anemic domain model, all logic lives in services
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

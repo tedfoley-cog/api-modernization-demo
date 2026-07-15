@@ -1,4 +1,4 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.loan.domain;
 
 public enum LoanStatus {
     SUBMITTED,

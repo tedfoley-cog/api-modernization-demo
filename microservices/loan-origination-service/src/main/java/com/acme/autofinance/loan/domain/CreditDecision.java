@@ -1,8 +1,13 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.loan.domain;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * Result of an internal credit check. This is a transient value object used while
+ * originating a loan; it is never persisted. In production the decision would come
+ * from an external bureau call, but the scoring is inlined here for the demo.
+ */
 public class CreditDecision {
 
     private Long loanId;
