@@ -1,4 +1,4 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.payment.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +13,11 @@ import javax.persistence.TemporalType;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * Payment aggregate owned by the payment-processing bounded context. Holds only
+ * payment-scoped facts; loan and account state live in other services and reach
+ * this module solely through event-sourced local projections.
+ */
 @Entity
 @Table(name = "payments")
 public class Payment {
