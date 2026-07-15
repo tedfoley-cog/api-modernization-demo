@@ -1,7 +1,7 @@
-package com.acme.autofinance.repository;
+package com.acme.autofinance.account.repository;
 
-import com.acme.autofinance.model.Account;
-import com.acme.autofinance.model.AccountStatus;
+import com.acme.autofinance.account.domain.Account;
+import com.acme.autofinance.account.domain.AccountStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,7 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.account.domain;
 
 public enum AccountStatus {
+    PENDING_ACTIVATION,
     CURRENT,
     DELINQUENT_30,
     DELINQUENT_60,
