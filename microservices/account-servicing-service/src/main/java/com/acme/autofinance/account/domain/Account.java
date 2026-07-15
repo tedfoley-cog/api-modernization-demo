@@ -1,4 +1,4 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.account.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +13,13 @@ import javax.persistence.TemporalType;
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * Account aggregate owned by the account-servicing bounded context. Holds only
+ * account-scoped facts plus the loan facts this context needs to service the
+ * account (interest rate, term) — projected asynchronously from loan-origination
+ * events. This module never reads the loan or payment databases: payoff and
+ * early-termination calculations rely solely on the state stored here.
+ */
 @Entity
 @Table(name = "accounts")
 public class Account {
@@ -47,6 +54,18 @@ public class Account {
 
     @Column(name = "payoff_amount", precision = 12, scale = 2)
     private BigDecimal payoffAmount;
+
+    /** Projected loan interest rate (annual %), sourced from {@code LoanFunded}. */
+    @Column(name = "interest_rate", precision = 6, scale = 3)
+    private BigDecimal interestRate;
+
+    /** Projected loan term in months, sourced from {@code LoanFunded}. */
+    @Column(name = "term_months")
+    private Integer termMonths;
+
+    /** Account-owned running total of unpaid fees, used by payoff quotes. */
+    @Column(name = "outstanding_fees", precision = 12, scale = 2)
+    private BigDecimal outstandingFees;
 
     @Column(name = "days_past_due")
     private Integer daysPastDue;
@@ -98,6 +117,15 @@ public class Account {
 
     public BigDecimal getPayoffAmount() { return payoffAmount; }
     public void setPayoffAmount(BigDecimal payoffAmount) { this.payoffAmount = payoffAmount; }
+
+    public BigDecimal getInterestRate() { return interestRate; }
+    public void setInterestRate(BigDecimal interestRate) { this.interestRate = interestRate; }
+
+    public Integer getTermMonths() { return termMonths; }
+    public void setTermMonths(Integer termMonths) { this.termMonths = termMonths; }
+
+    public BigDecimal getOutstandingFees() { return outstandingFees; }
+    public void setOutstandingFees(BigDecimal outstandingFees) { this.outstandingFees = outstandingFees; }
 
     public Integer getDaysPastDue() { return daysPastDue; }
     public void setDaysPastDue(Integer daysPastDue) { this.daysPastDue = daysPastDue; }
