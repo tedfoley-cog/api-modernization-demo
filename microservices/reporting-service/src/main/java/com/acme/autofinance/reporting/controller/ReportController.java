@@ -1,8 +1,6 @@
-package com.acme.autofinance.controller;
+package com.acme.autofinance.reporting.controller;
 
-import com.acme.autofinance.service.LoanService;
-import com.acme.autofinance.service.ReportService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.acme.autofinance.reporting.service.ReportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,11 +13,11 @@ import java.util.Map;
 @RequestMapping("/api/reports")
 public class ReportController {
 
-    @Autowired
-    private ReportService reportService;
+    private final ReportService reportService;
 
-    @Autowired
-    private LoanService loanService;
+    public ReportController(ReportService reportService) {
+        this.reportService = reportService;
+    }
 
     @GetMapping("/portfolio")
     public ResponseEntity<Map<String, Object>> getPortfolioSummary() {
