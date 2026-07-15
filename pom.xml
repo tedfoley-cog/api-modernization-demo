@@ -14,75 +14,57 @@
     </parent>
 
     <groupId>com.acme</groupId>
-    <artifactId>autofinance-monolith</artifactId>
+    <artifactId>autofinance-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>Auto Finance Platform</name>
-    <description>Legacy auto finance loan servicing monolith — Java 8, Spring MVC, JPA, shared database</description>
+    <name>Auto Finance Platform (Parent Aggregator)</name>
+    <description>Aggregator/parent POM for the event-driven decomposition of the auto finance monolith.
+        The legacy monolith source tree under ./src is preserved untouched for later domain extraction.</description>
 
     <properties>
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <springdoc.version>1.8.0</springdoc.version>
+        <!-- Spring Cloud release train compatible with Spring Boot 2.7.x -->
+        <spring-cloud.version>2021.0.9</spring-cloud.version>
     </properties>
 
-    <dependencies>
-        <!-- Web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+    <modules>
+        <module>events</module>
+        <module>messaging</module>
+        <module>microservices/loan-origination-service</module>
+        <module>microservices/payment-processing-service</module>
+        <module>microservices/account-servicing-service</module>
+        <module>microservices/dealer-integration-service</module>
+        <module>microservices/reporting-service</module>
+        <module>microservices/api-gateway</module>
+    </modules>
 
-        <!-- JPA + Hibernate -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud BOM (Gateway, etc.) -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
-        <!-- Validation -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
-        <!-- H2 embedded database -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- Swagger / OpenAPI -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-            <version>${springdoc.version}</version>
-        </dependency>
-
-        <!-- JDBC for raw SQL queries (legacy pattern) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-
-        <!-- Test -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+            <!-- Internal shared modules -->
+            <dependency>
+                <groupId>com.acme</groupId>
+                <artifactId>autofinance-events</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.acme</groupId>
+                <artifactId>autofinance-messaging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
