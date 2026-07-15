@@ -1,4 +1,4 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.payment.domain;
 
 public enum PaymentMethod {
     ACH,

@@ -1,8 +1,7 @@
-package com.acme.autofinance.controller;
+package com.acme.autofinance.payment.controller;
 
-import com.acme.autofinance.model.Payment;
-import com.acme.autofinance.service.PaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.acme.autofinance.payment.domain.Payment;
+import com.acme.autofinance.payment.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,21 +15,27 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST API for the payment-processing bounded context. Endpoint paths and
+ * response shapes are preserved from the legacy monolith controller.
+ */
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
 
-    @Autowired
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
+
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
     @PostMapping
     public ResponseEntity<Payment> submitPayment(@RequestBody Payment payment) {
-        // Inline validation — mixed concerns in controller
         if (payment.getLoanId() == null) {
-            throw new RuntimeException("Loan ID is required");
+            throw new IllegalArgumentException("Loan ID is required");
         }
         if (payment.getPaymentAmount() == null || payment.getPaymentAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Payment amount must be positive");
+            throw new IllegalArgumentException("Payment amount must be positive");
         }
         Payment result = paymentService.submitPayment(payment);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);

@@ -1,11 +1,12 @@
-package com.acme.autofinance.repository;
+package com.acme.autofinance.payment.repository;
 
-import com.acme.autofinance.model.Payment;
-import com.acme.autofinance.model.PaymentStatus;
+import com.acme.autofinance.payment.domain.Payment;
+import com.acme.autofinance.payment.domain.PaymentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -17,7 +18,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query(value = "SELECT SUM(payment_amount) FROM payments WHERE loan_id = ?1 AND status = 'COMPLETED'",
            nativeQuery = true)
-    java.math.BigDecimal sumCompletedPayments(Long loanId);
+    BigDecimal sumCompletedPayments(Long loanId);
 
     List<Payment> findByStatus(PaymentStatus status);
 }
