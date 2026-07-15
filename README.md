@@ -1,154 +1,130 @@
-# API Modernization Demo — Legacy Monolith to Event-Driven Microservices
+# API Modernization Demo — Event-Driven Auto Finance Platform
+
+This repository shows the completed decomposition of a shared-database Spring Boot monolith into five independently runnable bounded contexts, a public API gateway, shared event contracts, and Kafka messaging infrastructure. The original static-analysis artifacts remain the **before-state** record of the monolith; the root `src/` implementation has been removed.
+
+## Architecture
 
 ```mermaid
-flowchart TD
-  MONOLITH[Legacy API Monolith]
-  PROMPT[Prompt Devin]
+flowchart LR
+  CLIENT[API clients] --> GW[API Gateway :8080]
+  GW --> LOAN[Loan Origination :8084]
+  GW --> PAYMENT[Payment Processing :8081]
+  GW --> ACCOUNT[Account Servicing :8082]
+  GW --> DEALER[Dealer Integration :8083]
+  GW --> REPORTING[Reporting :8085]
 
-  subgraph ANALYSIS [Devin: Comprehension]
-    direction TB
-    MAP[Map API Endpoints]
-    DEPS[Trace Dependencies]
-    SCORE[Score Coupling]
-    BOUNDS[Identify Boundaries]
-    MAP --> DEPS --> SCORE --> BOUNDS
-  end
+  LOAN -->|loan events| KAFKA[(Kafka)]
+  PAYMENT -->|payment events| KAFKA
+  ACCOUNT -->|account events| KAFKA
+  DEALER -->|dealer events| KAFKA
 
-  DASH[Generate Dashboard]
+  KAFKA --> LOAN
+  KAFKA --> PAYMENT
+  KAFKA --> ACCOUNT
+  KAFKA --> DEALER
+  KAFKA --> REPORTING
 
-  subgraph CONVERT [Devin: Modernization]
-    direction TB
-    EXTRACT[Extract Bounded Context]
-    EVENTS[Define Domain Events]
-    SVC[Build Microservice]
-    TESTS[Add Integration Tests]
-    EXTRACT --> EVENTS --> SVC --> TESTS
-  end
-
-  PR[Open PR with Changes]
-  REVIEW[Presenter Opens Dashboard]
-  COMPARE[Before/After Comparison]
-
-  MONOLITH --> PROMPT
-  PROMPT --> MAP
-  BOUNDS --> DASH
-  DASH --> EXTRACT
-  TESTS --> PR
-  PR --> REVIEW
-  REVIEW --> COMPARE
-
-  classDef source    fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
-  classDef trigger   fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#312e81
-  classDef analysis  fill:#dbeafe,stroke:#3b82f6,stroke-width:1.5px,color:#1e3a8a
-  classDef dashboard fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#78350f
-  classDef convert   fill:#f3e8ff,stroke:#a855f7,stroke-width:2px,color:#581c87
-  classDef result    fill:#d1fae5,stroke:#10b981,stroke-width:2px,color:#064e3b
-  classDef review    fill:#fce7f3,stroke:#ec4899,stroke-width:2px,color:#831843
-
-  class MONOLITH source
-  class PROMPT trigger
-  class MAP,DEPS,SCORE,BOUNDS analysis
-  class DASH dashboard
-  class EXTRACT,EVENTS,SVC,TESTS convert
-  class PR result
-  class REVIEW,COMPARE review
+  LOAN --- LDB[(loan DB)]
+  PAYMENT --- PDB[(payment DB)]
+  ACCOUNT --- ADB[(account DB)]
+  DEALER --- DDB[(dealer DB)]
+  REPORTING --- RDB[(reporting projections)]
 ```
 
-> For the full interactive version, see [`docs/flowchart.html`](docs/flowchart.html).
+Each domain owns its code and H2 database. Services exchange facts through the shared event contracts and never depend on another service's implementation module or database.
 
-<details>
-<summary>Static flowchart image (click to expand)</summary>
+## Modules and Ports
 
-![Demo Workflow](docs/flowchart.png)
+| Module | Port | Public routes | Responsibility |
+|---|---:|---|---|
+| `microservices/api-gateway` | 8080 | `/api/**` | Preserves the public monolith paths and routes requests to bounded contexts |
+| `microservices/payment-processing-service` | 8081 | `/api/payments/**` | Payment submission, allocation, ACH processing, and late fees |
+| `microservices/account-servicing-service` | 8082 | `/api/accounts/**` | Account lifecycle, balances, payoff, delinquency, and termination |
+| `microservices/dealer-integration-service` | 8083 | `/api/dealers/**` | Dealer and deal-package workflows, reserves, holdbacks, and settlement |
+| `microservices/loan-origination-service` | 8084 | `/api/loans/**` | Application intake, credit decisions, terms, and funding |
+| `microservices/reporting-service` | 8085 | `/api/reports/**` | Read-only CQRS portfolio, delinquency, and dealer-performance projections |
+| `events` | — | — | Immutable domain-event contracts and stable topic names |
+| `messaging` | — | — | Kafka publisher and producer configuration |
 
-</details>
+## Kafka Event Flow
 
-## What This Demo Shows
+Events are published to one topic per producing bounded context:
 
-An AI agent analyzes a realistic legacy auto-finance monolithic API — 5 tightly-coupled domains sharing a single database with synchronous cross-domain calls — and decomposes it into event-driven microservices. The agent maps every endpoint, traces service dependencies, scores coupling, identifies bounded contexts, and then converts one domain into a working microservice with domain events, CQRS patterns, and integration tests. The audience sees the coupling quantified in a live dashboard and the modernization produced in real time.
+| Topic | Authoritative events | Principal consumers |
+|---|---|---|
+| `autofinance.loan-origination.events` | `LoanApplicationSubmitted`, `CreditDecisionMade`, `LoanFunded` | Account servicing, dealer integration, reporting |
+| `autofinance.payment-processing.events` | `PaymentReceived`, `PaymentAllocated`, `PaymentProcessed`, `LateFeesAssessed` | Account servicing, loan origination, reporting |
+| `autofinance.account-servicing.events` | `AccountCreated`, `AccountBalanceUpdated`, `AccountDelinquent` | Payment processing, loan origination, reporting |
+| `autofinance.dealer-integration.events` | `DealPackageSubmitted`, `DealerSettlementCalculated` | Loan origination, reporting |
 
-## What Devin Does Live
+Consumers use event IDs as an idempotent inbox key. Domain projections are upserted so supported event sequences converge even when related events arrive out of order.
 
-Devin analyzes the legacy monolith by parsing the Java source code, mapping all 20+ REST endpoints across 5 controllers, tracing service dependency chains (e.g., `LoanService` directly accesses 5 repositories across 4 domains), and calculating coupling scores. It generates an interactive modernization dashboard showing the endpoint inventory, service dependency graph, proposed domain boundaries, and a catalog of 14 domain events that should replace the synchronous calls. Devin then extracts the Payment Processing bounded context and produces a standalone Spring Boot microservice with domain events (`PaymentReceived`, `PaymentAllocated`, `PaymentProcessed`, `LateFeesAssessed`), CQRS-style command/query separation, and integration tests — opening a PR with the full diff.
+The reporting service subscribes to all four topics and writes only its own JPA projection tables. Its preserved read contracts are:
 
-## How the Demo Runs
+- `GET /api/reports/portfolio`
+- `GET /api/reports/delinquency`
+- `GET /api/reports/dealers`
 
-**Trigger**: The presenter prompts Devin in a live session with the repo URL and a modernization instruction.
+## Build and Test
 
-**What Devin does end-to-end**:
-1. Clones the repo and analyzes the Java source structure
-2. Runs `python -m analysis.analyze_monolith src dashboard/data` to parse endpoints, build the dependency graph, score coupling, identify domain boundaries, and generate the event catalog
-3. Opens the dashboard (`dashboard/index.html`) — data panels populate with analysis results
-4. Extracts the Payment Processing bounded context from the monolith
-5. Produces a standalone Spring Boot microservice in `microservices/payment-service/` with domain events, event publisher/consumer, and integration tests
-6. Opens a PR with the modernized code
+Requirements:
 
-**Visual artifacts**: Modernization dashboard (interactive HTML), Swagger UI (`/swagger-ui.html`), before/after architecture comparison in the PR.
-
-### Local Development
+- Java 17 runtime (sources remain Java 8 compatible)
+- Maven 3.8+
+- Kafka available at `localhost:9092`, or set `KAFKA_BOOTSTRAP_SERVERS`
 
 ```bash
-git clone https://github.com/tedfoley-cog/api-modernization-demo.git
-cd api-modernization-demo
+# Compile the complete reactor
+mvn -B compile --no-transfer-progress
 
-# Run the legacy monolith
-mvn spring-boot:run
-# Swagger UI:  http://localhost:8080/swagger-ui.html
-# H2 Console:  http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:autofinancedb)
+# Run all module tests
+mvn -B test --no-transfer-progress
 
-# Run the analysis scripts
-python -m analysis.analyze_monolith src dashboard/data
+# Run one service and its required shared modules
+mvn -B -pl microservices/reporting-service -am test --no-transfer-progress
 
-# View the dashboard
-open dashboard/index.html
+# Python static-analysis lint
+ruff check analysis/
 ```
 
-## Repo Layout
+To run the platform, start Kafka, then launch the six applications in separate shells:
 
-```
-api-modernization-demo/
-├── docs/
-│   ├── IMPLEMENTATION_PLAN.md        ← Research and implementation plan
-│   ├── flowchart.html                ← Interactive demo flow (Mermaid)
-│   └── flowchart.png                 ← Flowchart image
-├── src/main/java/com/acme/autofinance/
-│   ├── AutoFinanceApplication.java   ← Spring Boot main class
-│   ├── config/AppConfig.java         ← JdbcTemplate config
-│   ├── controller/                   ← 5 REST controllers (Loan, Payment, Account, Dealer, Report)
-│   ├── service/                      ← 5 service classes (LoanService is the "god service")
-│   ├── model/                        ← 6 JPA entities + 4 enums (anemic domain model)
-│   └── repository/                   ← 5 JPA repositories
-├── src/main/resources/
-│   ├── application.properties        ← Monolithic config (shared H2 database)
-│   └── data.sql                      ← Seed data (dealers, loans, payments, accounts)
-├── analysis/                         ← Python analysis scripts
-│   ├── analyze_monolith.py           ← Main entry point
-│   ├── dependency_graph.py           ← Service dependency graph builder
-│   ├── coupling_scorer.py            ← Coupling score calculator
-│   ├── domain_boundary.py            ← Domain boundary identifier
-│   └── event_catalog.py              ← Domain event catalog generator
-├── dashboard/
-│   ├── index.html                    ← Interactive modernization dashboard
-│   └── data/                         ← JSON output (starts empty, Devin populates)
-├── microservices/                    ← Empty — Devin fills during live demo
-├── events/                           ← Empty — Devin fills during live demo
-├── .github/workflows/ci.yml          ← CI: compile Java + lint Python
-├── pom.xml                           ← Maven build (Spring Boot 2.7.18, Java 8 source)
-├── README.md                         ← This file
-└── DEMO_NOTES.md                     ← Presenter cheat sheet
+```bash
+mvn -pl microservices/payment-processing-service spring-boot:run
+mvn -pl microservices/account-servicing-service spring-boot:run
+mvn -pl microservices/dealer-integration-service spring-boot:run
+mvn -pl microservices/loan-origination-service spring-boot:run
+mvn -pl microservices/reporting-service spring-boot:run
+mvn -pl microservices/api-gateway spring-boot:run
 ```
 
-## Key Concepts
+Call the APIs through the gateway at port 8080. Each service may also be run directly on its module port.
 
-| Term | Description |
-|---|---|
-| **Bounded Context** | A domain boundary where a specific business capability lives with its own data and logic |
-| **Domain Event** | An immutable record of something that happened in a domain (e.g., `PaymentReceived`) |
-| **CQRS** | Command Query Responsibility Segregation — separate models for reads and writes |
-| **Anemic Domain Model** | Anti-pattern where entities are just data holders with no business logic |
-| **God Service** | Anti-pattern where one service handles too many responsibilities |
-| **Coupling Score** | Metric measuring how many cross-domain dependencies a service has |
-| **Event Bus** | Message channel where domain events are published and consumed |
-| **Synchronous Coupling** | When one service directly calls another and waits for a response |
-| **ACH** | Automated Clearing House — US electronic payment network |
-| **TILA / ECOA** | Truth in Lending Act / Equal Credit Opportunity Act — regulatory requirements |
+## Before-State Analysis and Modernized Boundaries
+
+The Python analysis engine documents how the former monolith was understood before extraction:
+
+- [`analysis/domain_boundary.py`](analysis/domain_boundary.py) defines the five bounded contexts and maps legacy endpoints, services, entities, coupling, and extraction complexity to the target service modules.
+- [`analysis/event_catalog.py`](analysis/event_catalog.py) defines the authoritative events, producers, consumers, and payload fields used by the shared `events` module and Kafka consumers.
+- [`dashboard/data/`](dashboard/data/) is reserved for the preserved before-state JSON produced from the original monolith.
+- [`dashboard/index.html`](dashboard/index.html) visualizes that analysis, and [`docs/`](docs/) contains the implementation plan and demo flow.
+
+Do **not** rerun `python -m analysis.analyze_monolith src dashboard/data` after decomposition. The root monolith source no longer exists, and regenerating from the decomposed tree would overwrite the ground-truth before-state rather than describe the original system.
+
+## Repository Layout
+
+```text
+events/                                  Shared domain-event contracts
+messaging/                               Kafka publishing infrastructure
+microservices/
+  api-gateway/                           Public routing, port 8080
+  payment-processing-service/            Payment bounded context, port 8081
+  account-servicing-service/             Account bounded context, port 8082
+  dealer-integration-service/            Dealer bounded context, port 8083
+  loan-origination-service/              Loan bounded context, port 8084
+  reporting-service/                     Read-only CQRS projections, port 8085
+analysis/                                Preserved monolith analysis engine
+dashboard/                               Before-state architecture dashboard
+docs/                                    Modernization plan and visual flow
+pom.xml                                  Multi-module Maven reactor
+```
