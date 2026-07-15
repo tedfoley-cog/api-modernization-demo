@@ -1,4 +1,4 @@
-package com.acme.autofinance.model;
+package com.acme.autofinance.dealer.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
+/** Dealer aggregate owned by the dealer-integration bounded context. */
 @Entity
 @Table(name = "dealers")
 public class Dealer {
