@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: payment-processing-service
+          uri: ${PAYMENT_SERVICE_URI:http://localhost:8081}
+          predicates:
+            - Path=/api/payments/**
+        - id: account-servicing-service
+          uri: ${ACCOUNT_SERVICE_URI:http://localhost:8082}
+          predicates:
+            - Path=/api/accounts/**
+        - id: dealer-integration-service
+          uri: ${DEALER_SERVICE_URI:http://localhost:8083}
+          predicates:
+            - Path=/api/dealers/**
+        - id: loan-origination-service
+          uri: ${LOAN_SERVICE_URI:http://localhost:8084}
+          predicates:
+            - Path=/api/loans/**
+        - id: reporting-service
+          uri: ${REPORTING_SERVICE_URI:http://localhost:8085}
+          predicates:
+            - Path=/api/reports/**
