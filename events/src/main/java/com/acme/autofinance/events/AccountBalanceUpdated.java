@@ -1,6 +1,9 @@
 package com.acme.autofinance.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 /** Emitted when a balance changes after payment, adjustment, or payoff. */
 public final class AccountBalanceUpdated extends DomainEvent {
@@ -14,6 +17,24 @@ public final class AccountBalanceUpdated extends DomainEvent {
     public AccountBalanceUpdated(Long accountId, BigDecimal previousBalance, BigDecimal newBalance,
                                  BigDecimal changeAmount, String changeReason) {
         super(String.valueOf(accountId));
+        this.accountId = accountId;
+        this.previousBalance = previousBalance;
+        this.newBalance = newBalance;
+        this.changeAmount = changeAmount;
+        this.changeReason = changeReason;
+    }
+
+    @JsonCreator
+    public AccountBalanceUpdated(
+            @JsonProperty("eventId") String eventId,
+            @JsonProperty("occurredAt") Instant occurredAt,
+            @JsonProperty("aggregateId") String aggregateId,
+            @JsonProperty("accountId") Long accountId,
+            @JsonProperty("previousBalance") BigDecimal previousBalance,
+            @JsonProperty("newBalance") BigDecimal newBalance,
+            @JsonProperty("changeAmount") BigDecimal changeAmount,
+            @JsonProperty("changeReason") String changeReason) {
+        super(eventId, occurredAt, aggregateId);
         this.accountId = accountId;
         this.previousBalance = previousBalance;
         this.newBalance = newBalance;

@@ -1,6 +1,9 @@
 package com.acme.autofinance.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 /** Emitted when a payment is submitted by a borrower. */
 public final class PaymentReceived extends DomainEvent {
@@ -14,6 +17,24 @@ public final class PaymentReceived extends DomainEvent {
     public PaymentReceived(Long paymentId, Long loanId, BigDecimal paymentAmount,
                            String paymentMethod, String confirmationNumber) {
         super(String.valueOf(paymentId));
+        this.paymentId = paymentId;
+        this.loanId = loanId;
+        this.paymentAmount = paymentAmount;
+        this.paymentMethod = paymentMethod;
+        this.confirmationNumber = confirmationNumber;
+    }
+
+    @JsonCreator
+    public PaymentReceived(
+            @JsonProperty("eventId") String eventId,
+            @JsonProperty("occurredAt") Instant occurredAt,
+            @JsonProperty("aggregateId") String aggregateId,
+            @JsonProperty("paymentId") Long paymentId,
+            @JsonProperty("loanId") Long loanId,
+            @JsonProperty("paymentAmount") BigDecimal paymentAmount,
+            @JsonProperty("paymentMethod") String paymentMethod,
+            @JsonProperty("confirmationNumber") String confirmationNumber) {
+        super(eventId, occurredAt, aggregateId);
         this.paymentId = paymentId;
         this.loanId = loanId;
         this.paymentAmount = paymentAmount;

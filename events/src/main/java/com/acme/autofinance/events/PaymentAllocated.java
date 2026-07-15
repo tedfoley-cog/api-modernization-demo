@@ -1,6 +1,9 @@
 package com.acme.autofinance.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 /** Emitted when a payment is broken down into principal/interest/fees. */
 public final class PaymentAllocated extends DomainEvent {
@@ -14,6 +17,24 @@ public final class PaymentAllocated extends DomainEvent {
     public PaymentAllocated(Long paymentId, Long loanId, BigDecimal principalAmount,
                             BigDecimal interestAmount, BigDecimal feeAmount) {
         super(String.valueOf(paymentId));
+        this.paymentId = paymentId;
+        this.loanId = loanId;
+        this.principalAmount = principalAmount;
+        this.interestAmount = interestAmount;
+        this.feeAmount = feeAmount;
+    }
+
+    @JsonCreator
+    public PaymentAllocated(
+            @JsonProperty("eventId") String eventId,
+            @JsonProperty("occurredAt") Instant occurredAt,
+            @JsonProperty("aggregateId") String aggregateId,
+            @JsonProperty("paymentId") Long paymentId,
+            @JsonProperty("loanId") Long loanId,
+            @JsonProperty("principalAmount") BigDecimal principalAmount,
+            @JsonProperty("interestAmount") BigDecimal interestAmount,
+            @JsonProperty("feeAmount") BigDecimal feeAmount) {
+        super(eventId, occurredAt, aggregateId);
         this.paymentId = paymentId;
         this.loanId = loanId;
         this.principalAmount = principalAmount;

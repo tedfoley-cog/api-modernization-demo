@@ -1,6 +1,9 @@
 package com.acme.autofinance.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 /** Emitted when a dealer submits a deal package. */
 public final class DealPackageSubmitted extends DomainEvent {
@@ -15,6 +18,26 @@ public final class DealPackageSubmitted extends DomainEvent {
     public DealPackageSubmitted(String dealNumber, Long dealerId, String vehicleVin,
                                 BigDecimal salePrice, BigDecimal downPayment, BigDecimal tradeInValue) {
         super(dealNumber);
+        this.dealNumber = dealNumber;
+        this.dealerId = dealerId;
+        this.vehicleVin = vehicleVin;
+        this.salePrice = salePrice;
+        this.downPayment = downPayment;
+        this.tradeInValue = tradeInValue;
+    }
+
+    @JsonCreator
+    public DealPackageSubmitted(
+            @JsonProperty("eventId") String eventId,
+            @JsonProperty("occurredAt") Instant occurredAt,
+            @JsonProperty("aggregateId") String aggregateId,
+            @JsonProperty("dealNumber") String dealNumber,
+            @JsonProperty("dealerId") Long dealerId,
+            @JsonProperty("vehicleVin") String vehicleVin,
+            @JsonProperty("salePrice") BigDecimal salePrice,
+            @JsonProperty("downPayment") BigDecimal downPayment,
+            @JsonProperty("tradeInValue") BigDecimal tradeInValue) {
+        super(eventId, occurredAt, aggregateId);
         this.dealNumber = dealNumber;
         this.dealerId = dealerId;
         this.vehicleVin = vehicleVin;
