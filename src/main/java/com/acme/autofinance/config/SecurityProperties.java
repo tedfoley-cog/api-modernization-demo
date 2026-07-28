@@ -10,6 +10,20 @@ public class SecurityProperties {
     private final User user = new User();
     private final User admin = new User();
 
+    /**
+     * Set to false in every non-local environment; when true the application logs a warning that
+     * the credentials are the well-known development defaults committed to this repository.
+     */
+    private boolean usingDevelopmentDefaults;
+
+    public boolean isUsingDevelopmentDefaults() {
+        return usingDevelopmentDefaults;
+    }
+
+    public void setUsingDevelopmentDefaults(boolean usingDevelopmentDefaults) {
+        this.usingDevelopmentDefaults = usingDevelopmentDefaults;
+    }
+
     public User getUser() {
         return user;
     }

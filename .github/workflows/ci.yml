@@ -19,6 +19,9 @@ jobs:
       - name: Compile Java
         run: mvn -B compile --no-transfer-progress
 
+      - name: Test Java
+        run: mvn -B test --no-transfer-progress
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
