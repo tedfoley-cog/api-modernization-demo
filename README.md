@@ -94,7 +94,13 @@ cd api-modernization-demo
 # Run the legacy monolith
 mvn spring-boot:run
 # Swagger UI:  http://localhost:8080/swagger-ui.html
-# H2 Console:  http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:autofinancedb)
+# H2 Console:  http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:autofinancedb) — ROLE_ADMIN only
+
+# All /api/** endpoints require HTTP Basic auth. Local-dev users (see application.properties):
+#   apiuser  / devpassword    (ROLE_USER)
+#   apiadmin / adminpassword  (ROLE_USER + ROLE_ADMIN — reports, DELETEs, H2 console)
+curl -u apiuser:devpassword http://localhost:8080/api/loans
+# Override per environment with BCrypt hashes, e.g. APP_SECURITY_ADMIN_PASSWORDHASH=...
 
 # Run the analysis scripts
 python -m analysis.analyze_monolith src dashboard/data

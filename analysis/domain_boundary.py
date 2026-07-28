@@ -77,14 +77,10 @@ def identify_domain_boundaries(
                 })
 
         # Count cross-boundary dependencies for this domain
-        domain_classes = set(
-            s["class_name"] for s in domain_services
-        )
+        domain_classes = {s["class_name"] for s in domain_services}
         cross_boundary = 0
         for edge in dep_graph.get("edges", []):
-            if edge["source"] in domain_classes and edge["target"] not in domain_classes:
-                cross_boundary += 1
-            elif edge["target"] in domain_classes and edge["source"] not in domain_classes:
+            if (edge["source"] in domain_classes) != (edge["target"] in domain_classes):
                 cross_boundary += 1
 
         boundaries.append({

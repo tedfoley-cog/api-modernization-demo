@@ -3,8 +3,9 @@ import json
 import os
 import re
 import sys
-from analysis.dependency_graph import build_dependency_graph
+
 from analysis.coupling_scorer import calculate_coupling_scores
+from analysis.dependency_graph import build_dependency_graph
 from analysis.domain_boundary import identify_domain_boundaries
 from analysis.event_catalog import generate_event_catalog
 
